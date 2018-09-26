@@ -55,29 +55,21 @@ public class Main {
 
         puzzlePrettyPrint(initialPuzzle);
 
+        Puzzle initialPuzzleInstance = new Puzzle(initialPuzzle);
+
         System.out.println();
 
-        String line = getLine(initialPuzzle, false);
-
-        try {
-            writeInFile("test", line);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(puzzleSolved(initialPuzzle));
-
-        depthFirst(initialPuzzle);
+        depthFirst(initialPuzzleInstance);
     }
 
-    public static boolean depthFirst(int[][] initialPuzzle) {
-        Stack<int[][]> open = new Stack<>();
-        Stack<int[][]> close = new Stack<>();
+    public static boolean depthFirst(Puzzle initialPuzzle) {
+        Stack<Puzzle> open = new Stack<>();
+        Stack<Puzzle> close = new Stack<>();
 
         open.add(initialPuzzle);
 
         // Write current path in file
-        String line = getLine(initialPuzzle, true);
+        String line = getLine(initialPuzzle.getPuzzle(), true);
 
         try {
             writeInFile("puzzleDFS", line);
@@ -86,7 +78,9 @@ public class Main {
         }
 
         while (!open.isEmpty()) {
-            int[][] currentPuzzle = open.pop();
+            Puzzle currentPuzzleInstance = open.pop();
+
+            int[][] currentPuzzle = currentPuzzleInstance.getPuzzle();
 
             // If puzzle is solved, return true
             if (puzzleSolved(currentPuzzle)) {
@@ -94,18 +88,118 @@ public class Main {
             }
 
             // Generate children
-            // TODO
+            Stack<Puzzle> children = new Stack<>();
+
+            // We will move the 0 tile in 8 different positions, if possible
+
+            // First, retrieve 0's position
+            int zeroRow = 0, zeroCol = 0, newZeroRow, newZeroCol;
+
+            for (int i = 0; i < ROW_SIZE; i++) {
+                for (int j = 0; j < COL_SIZE; j++) {
+                    if (currentPuzzle[i][j] == 0) {
+                        zeroRow = i;
+                        zeroCol = j;
+                    }
+                }
+            }
+
+            // UP move
+            int[][] upPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
+
+            // Compute new 0 position for a UP move
+            newZeroRow = zeroRow - 1;
+            newZeroCol = zeroCol;
+
+            // If the position is valid
+            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, upPuzzle);
+
+            // UP-RIGHT move
+            int[][] upRightPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
+
+            // Compute new 0 position for a UP-RIGHT move
+            newZeroRow = zeroRow - 1;
+            newZeroCol = zeroCol + 1;
+
+            // If the position is valid
+            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, upRightPuzzle);
+
+            // RIGHT move
+            int[][] rightPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
+
+            // Compute new 0 position for a RIGHT move
+            newZeroRow = zeroRow;
+            newZeroCol = zeroCol + 1;
+
+            // If the position is valid
+            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, rightPuzzle);
+
+            // DOWN-RIGHT move
+            int[][] downRightPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
+
+            // Compute new 0 position for a DOWN-RIGHT move
+            newZeroRow = zeroRow + 1;
+            newZeroCol = zeroCol + 1;
+
+            // If the position is valid
+            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, downRightPuzzle);
+
+            // DOWN move
+            int[][] downPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
+
+            // Compute new 0 position for a DOWN move
+            newZeroRow = zeroRow + 1;
+            newZeroCol = zeroCol;
+
+            // If the position is valid
+            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, downPuzzle);
+
+            // DOWN-LEFT move
+            int[][] downLeftPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
+
+            // Compute new 0 position for a DOWN-LEFT move
+            newZeroRow = zeroRow + 1;
+            newZeroCol = zeroCol - 1;
+
+            // If the position is valid
+            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, downLeftPuzzle);
+
+            // LEFT move
+            int[][] leftPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
+
+            // Compute new 0 position for a LEFT move
+            newZeroRow = zeroRow;
+            newZeroCol = zeroCol - 1;
+
+            // If the position is valid
+            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, leftPuzzle);
+
+            // UP-LEFT move
+            int[][] upLeftPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
+
+            // Compute new 0 position for a UP-LEFT move
+            newZeroRow = zeroRow - 1;
+            newZeroCol = zeroCol - 1;
+
+            // If the position is valid
+            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, upLeftPuzzle);
 
             // Add current puzzle to the close stack
-            close.add(initialPuzzle);
+            close.add(currentPuzzleInstance);
 
-            // Discard existing children
-            // TODO
+            // Discard existing children and insert the others in the open stack
+            while (!children.isEmpty()) {
+                Puzzle child = children.pop();
 
-            // Insert other children in open
-            // TODO
+                // If the child is neither in open or close, push it to the open stack
+                // We'll push UP-LEFT moves to UP last (least preferred to most preferred, so the
+                // most preferred move will be on top of the open stack and tried first
+                if (!open.contains(child) && !close.contains(child)) {
+                    open.push(child);
+                }
+            }
 
-            // Write current path in file
+            // Write current path in the puzzleDFS.txt file
             line = getLine(currentPuzzle, false);
 
             try {
@@ -116,6 +210,51 @@ public class Main {
         }
 
         return false;
+    }
+
+    /**
+     * Clone a Puzzle
+     * Inspired by http://www.java2s.com/Code/Java/Collections-Data-Structure/clonetwodimensionalarray.htm
+     * @param a
+     * @return
+     */
+    public static int[][] clonePuzzle(int[][] a) {
+        int[][] b = new int[a.length][];
+        for (int i = 0; i < a.length; i++) {
+            b[i] = a[i].clone();
+        }
+        return b;
+    }
+
+    private static void generateChild(Stack<Puzzle> childrenStack, int zeroRow, int zeroCol, int newZeroRow, int newZeroCol, int[][] puzzle) {
+        int temp;
+        if (cellExists(newZeroRow, newZeroCol, puzzle)) {
+            // Swap the values
+            temp = puzzle[newZeroRow][newZeroCol];
+            puzzle[newZeroRow][newZeroCol] = 0;
+            puzzle[zeroRow][zeroCol] = temp;
+
+            // Now that the puzzle is ready, push it to the potential children stack
+            childrenStack.push(new Puzzle(puzzle));
+        }
+    }
+
+    /**
+     * Check if a cell exists
+     * @param row row to check
+     * @param col col to check
+     * @param puzzle puzzle to look in for the row/col couple
+     * @return true if it exists, false otherwise
+     */
+    public static boolean cellExists(int row, int col, int[][] puzzle)
+    {
+        try {
+            int value = puzzle[row][col];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -144,7 +283,7 @@ public class Main {
     /**
      * Maps a number to a letter, ie A = 1, B = 2 etc
      * Credits: https://stackoverflow.com/a/10813256
-     * @param i
+     * @param i integer for which we want the char
      * @return
      */
     private static String getCharForNumber(int i) {
