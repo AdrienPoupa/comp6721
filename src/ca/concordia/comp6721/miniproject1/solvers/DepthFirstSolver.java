@@ -38,102 +38,9 @@ public class DepthFirstSolver implements Solver {
                 return true;
             }
 
-            // Generate children
-            Stack<Puzzle> children = new Stack<>();
-
-            // We will move the 0 tile in 8 different positions, if possible
-
-            // First, retrieve 0's position
-            int zeroRow = 0, zeroCol = 0, newZeroRow, newZeroCol;
-
-            for (int i = 0; i < ROW_SIZE; i++) {
-                for (int j = 0; j < COL_SIZE; j++) {
-                    if (currentPuzzle[i][j] == 0) {
-                        zeroRow = i;
-                        zeroCol = j;
-                    }
-                }
-            }
-
-            // UP move
-            int[][] upPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
-
-            // Compute new 0 position for a UP move
-            newZeroRow = zeroRow - 1;
-            newZeroCol = zeroCol;
-
-            // If the position is valid
-            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(upPuzzle));
-
-            // UP-RIGHT move
-            int[][] upRightPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
-
-            // Compute new 0 position for a UP-RIGHT move
-            newZeroRow = zeroRow - 1;
-            newZeroCol = zeroCol + 1;
-
-            // If the position is valid
-            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(upRightPuzzle));
-
-            // RIGHT move
-            int[][] rightPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
-
-            // Compute new 0 position for a RIGHT move
-            newZeroRow = zeroRow;
-            newZeroCol = zeroCol + 1;
-
-            // If the position is valid
-            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(rightPuzzle));
-
-            // DOWN-RIGHT move
-            int[][] downRightPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
-
-            // Compute new 0 position for a DOWN-RIGHT move
-            newZeroRow = zeroRow + 1;
-            newZeroCol = zeroCol + 1;
-
-            // If the position is valid
-            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(downRightPuzzle));
-
-            // DOWN move
-            int[][] downPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
-
-            // Compute new 0 position for a DOWN move
-            newZeroRow = zeroRow + 1;
-            newZeroCol = zeroCol;
-
-            // If the position is valid
-            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(downPuzzle));
-
-            // DOWN-LEFT move
-            int[][] downLeftPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
-
-            // Compute new 0 position for a DOWN-LEFT move
-            newZeroRow = zeroRow + 1;
-            newZeroCol = zeroCol - 1;
-
-            // If the position is valid
-            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(downLeftPuzzle));
-
-            // LEFT move
-            int[][] leftPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
-
-            // Compute new 0 position for a LEFT move
-            newZeroRow = zeroRow;
-            newZeroCol = zeroCol - 1;
-
-            // If the position is valid
-            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(leftPuzzle));
-
-            // UP-LEFT move
-            int[][] upLeftPuzzle = clonePuzzle(currentPuzzle); // Copy currentPuzzle
-
-            // Compute new 0 position for a UP-LEFT move
-            newZeroRow = zeroRow - 1;
-            newZeroCol = zeroCol - 1;
-
-            // If the position is valid
-            generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(upLeftPuzzle));
+            // We will move the 0 tile in 8 different positions, if possible.
+            // Here, we get a stack with all the admissible children.
+            Stack<Puzzle> children = generateChildren(currentPuzzle);
 
             // Add current puzzle to the close stack
             close.add(currentPuzzleInstance);
@@ -169,15 +76,123 @@ public class DepthFirstSolver implements Solver {
     }
 
     /**
-     * Generate the child
-     * @param childrenStack
-     * @param zeroRow
-     * @param zeroCol
-     * @param newZeroRow
-     * @param newZeroCol
-     * @param puzzle
+     * Generate the children of a Puzzle, in the following order:
+     * UP > UP-RIGHT > RIGHT > DOWN-RIGHT > DOWN > DOWN-LEFT > LEFT > UP-LEFT
+     * UP is pushed first, so it is in the bottom of the stack and will be processed last
+     * But this results in it being pushed at the top of the open stack for DFS, which we want
+     * @return Stack of Puzzles
      */
-    private void generateChild(Stack<Puzzle> childrenStack, int zeroRow, int zeroCol, int newZeroRow, int newZeroCol, Puzzle puzzle) {
+    public Stack<Puzzle> generateChildren(int[][] puzzle) {
+        // Generate children
+        Stack<Puzzle> children = new Stack<>();
+
+        // We will move the 0 tile in 8 different positions, if possible
+
+        // First, retrieve 0's position
+        int zeroRow = 0, zeroCol = 0, newZeroRow, newZeroCol;
+
+        for (int i = 0; i < ROW_SIZE; i++) {
+            for (int j = 0; j < COL_SIZE; j++) {
+                if (puzzle[i][j] == 0) {
+                    zeroRow = i;
+                    zeroCol = j;
+                }
+            }
+        }
+
+        // UP move
+        int[][] upPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a UP move
+        newZeroRow = zeroRow - 1;
+        newZeroCol = zeroCol;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(upPuzzle));
+
+        // UP-RIGHT move
+        int[][] upRightPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a UP-RIGHT move
+        newZeroRow = zeroRow - 1;
+        newZeroCol = zeroCol + 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(upRightPuzzle));
+
+        // RIGHT move
+        int[][] rightPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a RIGHT move
+        newZeroRow = zeroRow;
+        newZeroCol = zeroCol + 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(rightPuzzle));
+
+        // DOWN-RIGHT move
+        int[][] downRightPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a DOWN-RIGHT move
+        newZeroRow = zeroRow + 1;
+        newZeroCol = zeroCol + 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(downRightPuzzle));
+
+        // DOWN move
+        int[][] downPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a DOWN move
+        newZeroRow = zeroRow + 1;
+        newZeroCol = zeroCol;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(downPuzzle));
+
+        // DOWN-LEFT move
+        int[][] downLeftPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a DOWN-LEFT move
+        newZeroRow = zeroRow + 1;
+        newZeroCol = zeroCol - 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(downLeftPuzzle));
+
+        // LEFT move
+        int[][] leftPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a LEFT move
+        newZeroRow = zeroRow;
+        newZeroCol = zeroCol - 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(leftPuzzle));
+
+        // UP-LEFT move
+        int[][] upLeftPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a UP-LEFT move
+        newZeroRow = zeroRow - 1;
+        newZeroCol = zeroCol - 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(upLeftPuzzle));
+
+        return children;
+    }
+
+    /**
+     * Generate the child, add it to the children stack
+     * @param children children stack
+     * @param zeroRow row of the zero
+     * @param zeroCol col of the zero
+     * @param newZeroRow new row of the zero
+     * @param newZeroCol new col of the zero
+     * @param puzzle puzzle that we work on
+     */
+    private void generateChild(Stack<Puzzle> children, int zeroRow, int zeroCol, int newZeroRow, int newZeroCol, Puzzle puzzle) {
         int temp;
         if (puzzle.cellExists(newZeroRow, newZeroCol)) {
             // Swap the values
@@ -187,7 +202,7 @@ public class DepthFirstSolver implements Solver {
             puzzleTable[zeroRow][zeroCol] = temp;
 
             // Now that the puzzle is ready, push it to the potential children stack
-            childrenStack.push(puzzle);
+            children.push(puzzle);
         }
     }
 }
