@@ -2,8 +2,11 @@ package ca.concordia.comp6721.miniproject1;
 
 import ca.concordia.comp6721.miniproject1.solvers.DepthFirstSolver;
 import ca.concordia.comp6721.miniproject1.solvers.Solver;
+import ca.concordia.comp6721.miniproject1.solvers.bestfirstsolver.BestFirstSolverHammingDistance;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 import static ca.concordia.comp6721.miniproject1.Puzzle.*;
 
@@ -55,12 +58,25 @@ public class Main {
 
         Puzzle initialPuzzleInstance = new Puzzle(initialPuzzle);
 
-        System.out.println("Puzzle that is going to be solved using DFS:");
+        /*System.out.println("Puzzle that is going to be solved using DFS:");
+        System.out.println(initialPuzzleInstance);*/
+
+        Solver solver = new DepthFirstSolver();
+
+        //solver.solve(initialPuzzleInstance);
+
+        System.out.println("Puzzle that is going to be solved using BFS-h1 (Hamming Distance):");
         System.out.println(initialPuzzleInstance);
 
-        Solver depthFirstSolver = new DepthFirstSolver();
+        solver = new BestFirstSolverHammingDistance();
 
-        depthFirstSolver.solve(initialPuzzleInstance);
+        boolean solved = solver.solve(initialPuzzleInstance);
+
+        if (solved) {
+            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzle-BFS-h1.txt file.");
+        } else {
+            System.out.println("The puzzle was not solvable");
+        }
     }
 
 }

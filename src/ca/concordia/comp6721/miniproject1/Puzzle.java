@@ -1,6 +1,7 @@
 package ca.concordia.comp6721.miniproject1;
 
 import java.util.Arrays;
+import java.util.Stack;
 import java.util.StringJoiner;
 
 /**
@@ -18,7 +19,7 @@ public class Puzzle {
 
     private int heuristic;
 
-    public Puzzle(int[][] puzzle) {
+    Puzzle(int[][] puzzle) {
         this.puzzle = puzzle;
     }
 
@@ -52,8 +53,9 @@ public class Puzzle {
      * @param col col to check
      * @return true if it exists, false otherwise
      */
-    public boolean cellExists(int row, int col) {
+    private boolean cellExists(int row, int col) {
         try {
+            // Try to access the value
             int value = puzzle[row][col];
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
@@ -93,6 +95,137 @@ public class Puzzle {
     }
 
     /**
+     * Generate the children of a Puzzle, in the following order:
+     * UP > UP-RIGHT > RIGHT > DOWN-RIGHT > DOWN > DOWN-LEFT > LEFT > UP-LEFT
+     * UP is pushed first, so it is in the bottom of the stack and will be processed last
+     * But this results in it being pushed at the top of the open stack for DFS, which we want
+     * @return Stack of Puzzles
+     */
+    public Stack<Puzzle> generateChildren() {
+        // Generate children
+        Stack<Puzzle> children = new Stack<>();
+
+        // We will move the 0 tile in 8 different positions, if possible
+
+        // First, retrieve 0's position
+        int zeroRow = 0, zeroCol = 0, newZeroRow, newZeroCol;
+
+        for (int i = 0; i < ROW_SIZE; i++) {
+            for (int j = 0; j < COL_SIZE; j++) {
+                if (puzzle[i][j] == 0) {
+                    zeroRow = i;
+                    zeroCol = j;
+                }
+            }
+        }
+
+        // UP move
+        int[][] upPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a UP move
+        newZeroRow = zeroRow - 1;
+        newZeroCol = zeroCol;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(upPuzzle));
+
+        // UP-RIGHT move
+        int[][] upRightPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a UP-RIGHT move
+        newZeroRow = zeroRow - 1;
+        newZeroCol = zeroCol + 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(upRightPuzzle));
+
+        // RIGHT move
+        int[][] rightPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a RIGHT move
+        newZeroRow = zeroRow;
+        newZeroCol = zeroCol + 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(rightPuzzle));
+
+        // DOWN-RIGHT move
+        int[][] downRightPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a DOWN-RIGHT move
+        newZeroRow = zeroRow + 1;
+        newZeroCol = zeroCol + 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(downRightPuzzle));
+
+        // DOWN move
+        int[][] downPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a DOWN move
+        newZeroRow = zeroRow + 1;
+        newZeroCol = zeroCol;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(downPuzzle));
+
+        // DOWN-LEFT move
+        int[][] downLeftPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a DOWN-LEFT move
+        newZeroRow = zeroRow + 1;
+        newZeroCol = zeroCol - 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(downLeftPuzzle));
+
+        // LEFT move
+        int[][] leftPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a LEFT move
+        newZeroRow = zeroRow;
+        newZeroCol = zeroCol - 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(leftPuzzle));
+
+        // UP-LEFT move
+        int[][] upLeftPuzzle = clonePuzzle(puzzle); // Copy puzzle
+
+        // Compute new 0 position for a UP-LEFT move
+        newZeroRow = zeroRow - 1;
+        newZeroCol = zeroCol - 1;
+
+        // If the position is valid
+        generateChild(children, zeroRow, zeroCol, newZeroRow, newZeroCol, new Puzzle(upLeftPuzzle));
+
+        return children;
+    }
+
+    /**
+     * Generate the child, add it to the children stack
+     * @param children children stack
+     * @param zeroRow row of the zero
+     * @param zeroCol col of the zero
+     * @param newZeroRow new row of the zero
+     * @param newZeroCol new col of the zero
+     * @param puzzle puzzle that we work on
+     */
+    private void generateChild(Stack<Puzzle> children, int zeroRow, int zeroCol, int newZeroRow, int newZeroCol, Puzzle puzzle) {
+        int temp;
+        if (puzzle.cellExists(newZeroRow, newZeroCol)) {
+            // Swap the values
+            int[][] puzzleTable = puzzle.getPuzzle();
+            temp = puzzleTable[newZeroRow][newZeroCol];
+            puzzleTable[newZeroRow][newZeroCol] = 0;
+            puzzleTable[zeroRow][zeroCol] = temp;
+
+            // Now that the puzzle is ready, push it to the potential children stack
+            children.push(puzzle);
+        }
+    }
+
+    /**
      * Print the puzzle as a grid
      * Credits: https://stackoverflow.com/a/34846615
      * @return String
@@ -118,8 +251,8 @@ public class Puzzle {
 
     /**
      * Override equals based on the puzzle array, so Stack's contain works
-     * @param o
-     * @return
+     * @param o object to compare
+     * @return object to compare
      */
     @Override
     public boolean equals(Object o) {
@@ -131,7 +264,7 @@ public class Puzzle {
 
     /**
      * Override hashCode since we override equals
-     * @return
+     * @return int hashcode
      */
     @Override
     public int hashCode() {
@@ -141,14 +274,16 @@ public class Puzzle {
     /**
      * Clone a Puzzle
      * Inspired by http://www.java2s.com/Code/Java/Collections-Data-Structure/clonetwodimensionalarray.htm
-     * @param a
-     * @return
+     * @param puzzle puzzle to clone
+     * @return puzzle cloned
      */
-    public static int[][] clonePuzzle(int[][] a) {
-        int[][] b = new int[a.length][];
-        for (int i = 0; i < a.length; i++) {
-            b[i] = a[i].clone();
+    private static int[][] clonePuzzle(int[][] puzzle) {
+        int[][] b = new int[puzzle.length][];
+
+        for (int i = 0; i < puzzle.length; i++) {
+            b[i] = puzzle[i].clone();
         }
+
         return b;
     }
 }
