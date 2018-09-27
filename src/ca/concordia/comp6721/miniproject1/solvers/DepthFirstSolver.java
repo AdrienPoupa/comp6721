@@ -24,14 +24,8 @@ public class DepthFirstSolver implements Solver {
 
         open.add(initialPuzzle);
 
-        // Write current path in file
-        String line = FileUtil.getLine(initialPuzzle.getPuzzle(), true);
-
-        try {
-            FileUtil.writeInFile("puzzleDFS", line);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // Is it the first iteration? Useful for the first line of the trace
+        boolean isFirst = true;
 
         // As long as we have grids to solve in the open stack
         while (!open.isEmpty()) {
@@ -157,7 +151,12 @@ public class DepthFirstSolver implements Solver {
             }
 
             // Write current path in the puzzleDFS.txt file
-            line = FileUtil.getLine(currentPuzzle, false);
+            String line = FileUtil.getLine(currentPuzzle, isFirst);
+
+            // This is not the first iteration anymore
+            if (isFirst) {
+                isFirst = false;
+            }
 
             try {
                 FileUtil.writeInFile("puzzleDFS", line);
