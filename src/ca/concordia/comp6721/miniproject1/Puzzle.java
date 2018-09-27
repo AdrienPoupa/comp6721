@@ -16,6 +16,8 @@ public class Puzzle {
 
     private Puzzle parent;
 
+    private int heuristic;
+
     public Puzzle(int[][] puzzle) {
         this.puzzle = puzzle;
     }
@@ -36,14 +38,21 @@ public class Puzzle {
         this.parent = parent;
     }
 
+    public int getHeuristic() {
+        return heuristic;
+    }
+
+    public void setHeuristic(int heuristic) {
+        this.heuristic = heuristic;
+    }
+
     /**
      * Check if a cell exists
      * @param row row to check
      * @param col col to check
      * @return true if it exists, false otherwise
      */
-    public boolean cellExists(int row, int col)
-    {
+    public boolean cellExists(int row, int col) {
         try {
             int value = puzzle[row][col];
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -107,6 +116,11 @@ public class Puzzle {
         return lineSplit;
     }
 
+    /**
+     * Override equals based on the puzzle array, so Stack's contain works
+     * @param o
+     * @return
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -115,6 +129,10 @@ public class Puzzle {
         return Arrays.deepEquals(puzzle, puzzle1.getPuzzle());
     }
 
+    /**
+     * Override hashCode since we override equals
+     * @return
+     */
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(puzzle);
