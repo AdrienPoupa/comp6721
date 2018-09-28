@@ -1,18 +1,18 @@
-package ca.concordia.comp6721.miniproject1.solvers.bestfirstsolver;
+package ca.concordia.comp6721.miniproject1.heuristics;
 
 import ca.concordia.comp6721.miniproject1.Puzzle;
 
 import static ca.concordia.comp6721.miniproject1.Puzzle.*;
 
 /**
- * Hamming distance heuristic for the BestFirstSolver
+ * Hamming distance evaluate for the BestFirstSolver
  */
-public class BestFirstSolverHammingDistance extends BestFirstSolver {
+public class HammingDistanceHeuristic implements Heuristic {
     /**
      * Hamming distance: counts the number of tiles that are misplaced
      * @param puzzleInstance puzzle to evaluate
      */
-    public void heuristic(Puzzle puzzleInstance) {
+    public void evaluate(Puzzle puzzleInstance) {
 
         int[][] puzzle = puzzleInstance.getPuzzle();
 
@@ -39,5 +39,14 @@ public class BestFirstSolverHammingDistance extends BestFirstSolver {
         }
 
         puzzleInstance.setHeuristic(numberOfTilesMisplaced);
+    }
+
+    /**
+     * Name of the heuristic for the filename
+     * @return h1
+     */
+    @Override
+    public String toString() {
+        return "h1";
     }
 }

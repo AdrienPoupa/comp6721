@@ -1,12 +1,16 @@
 package ca.concordia.comp6721.miniproject1;
 
+import ca.concordia.comp6721.miniproject1.heuristics.HammingDistanceHeuristic;
+import ca.concordia.comp6721.miniproject1.heuristics.Heuristic;
+import ca.concordia.comp6721.miniproject1.heuristics.ManhattanDistanceHeuristic;
+import ca.concordia.comp6721.miniproject1.solvers.BestFirstSolver;
 import ca.concordia.comp6721.miniproject1.solvers.DepthFirstSolver;
 import ca.concordia.comp6721.miniproject1.solvers.Solver;
-import ca.concordia.comp6721.miniproject1.solvers.bestfirstsolver.BestFirstSolverHammingDistance;
 
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import static ca.concordia.comp6721.miniproject1.Puzzle.*;
 
@@ -23,11 +27,12 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
-        for (int i = 0; i < ROW_SIZE; i++) {
-            for (int j = 0; j < COL_SIZE; j++) {
+        // Enter puzzle data
+        for (int row = 0; row < ROW_SIZE; row++) {
+            for (int col = 0; col < COL_SIZE; col++) {
                 try {
                     int number = scanner.nextInt();
-                    initialPuzzle[i][j] = number;
+                    initialPuzzle[row][col] = number;
                 } catch (InputMismatchException e) {
                     System.out.println("Please input numbers");
                     return;
@@ -43,9 +48,9 @@ public class Main {
         }
 
         // Remove each of the numbers contained in the puzzle from the ArrayList
-        for (int i = 0; i < ROW_SIZE; i++) {
-            for (int j = 0; j < COL_SIZE; j++) {
-                final int puzzleValue = initialPuzzle[i][j];
+        for (int row = 0; row < ROW_SIZE; row++) {
+            for (int col = 0; col < COL_SIZE; col++) {
+                final int puzzleValue = initialPuzzle[row][col];
                 expectedValues.removeIf(s -> s.equals(puzzleValue));
             }
         }
@@ -56,6 +61,7 @@ public class Main {
             return;
         }
 
+        // Create a puzzle instance based on the initial puzzle
         Puzzle initialPuzzleInstance = new Puzzle(initialPuzzle);
 
         /*System.out.println("Puzzle that is going to be solved using DFS:");
@@ -63,20 +69,54 @@ public class Main {
 
         Solver solver = new DepthFirstSolver();
 
-        //solver.solve(initialPuzzleInstance);
+        //solver.solve(initialPuzzleInstance, null);
 
         System.out.println("Puzzle that is going to be solved using BFS-h1 (Hamming Distance):");
         System.out.println(initialPuzzleInstance);
 
-        solver = new BestFirstSolverHammingDistance();
+        solver = new BestFirstSolver();
+        Heuristic heuristic = new HammingDistanceHeuristic();
 
-        boolean solved = solver.solve(initialPuzzleInstance);
+        long startTime = System.nanoTime();
+
+        boolean solved = solver.solve(initialPuzzleInstance, heuristic);
+
+        long stopTime = System.nanoTime();
+
+        long timeElapsed = stopTime - startTime;
+
+        timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
 
         if (solved) {
-            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzle-BFS-h1.txt file.");
+            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzle-BFS-"+heuristic.toString()+".txt file.");
         } else {
             System.out.println("The puzzle was not solvable");
         }
+
+        System.out.println("Time elapsed: "+ timeElapsed +" ms");
+
+        System.out.println("Puzzle that is going to be solved using BFS-h2 (Manhattan Distance):");
+        System.out.println(initialPuzzleInstance);
+
+        heuristic = new ManhattanDistanceHeuristic();
+
+        startTime = System.nanoTime();
+
+        solved = solver.solve(initialPuzzleInstance, heuristic);
+
+        stopTime = System.nanoTime();
+
+        timeElapsed = stopTime - startTime;
+
+        timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
+
+        if (solved) {
+            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzle-BFS-"+heuristic.toString()+".txt file.");
+        } else {
+            System.out.println("The puzzle was not solvable");
+        }
+
+        System.out.println("Time elapsed: "+ timeElapsed +" ms");
     }
 
 }

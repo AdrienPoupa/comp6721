@@ -2,6 +2,7 @@ package ca.concordia.comp6721.miniproject1.solvers;
 
 import ca.concordia.comp6721.miniproject1.FileUtil;
 import ca.concordia.comp6721.miniproject1.Puzzle;
+import ca.concordia.comp6721.miniproject1.heuristics.Heuristic;
 
 import java.util.Stack;
 
@@ -13,9 +14,10 @@ public class DepthFirstSolver implements Solver {
     /**
      * Solve the Puzzle
      * @param initialPuzzle puzzle to solve
+     * @param heuristic evaluate that will be used (null for DFS)
      * @return true if solved, false if not
      */
-    public boolean solve(Puzzle initialPuzzle) {
+    public boolean solve(Puzzle initialPuzzle, Heuristic heuristic) {
         Stack<Puzzle> open = new Stack<>();
         Stack<Puzzle> close = new Stack<>();
 

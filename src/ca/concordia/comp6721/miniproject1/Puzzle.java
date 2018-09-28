@@ -77,14 +77,14 @@ public class Puzzle {
 
         // Global counter for the two for loops, goes from 1 to PUZZLE_SIZE (12 for a 3*4 puzzle)
         int globalCounter = 0;
-        for (int i = 0; i < ROW_SIZE; i++) {
-            for (int j = 0; j < COL_SIZE; j++) {
+        for (int row = 0; row < ROW_SIZE; row++) {
+            for (int col = 0; col < COL_SIZE; col++) {
 
                 globalCounter++;
 
                 // If this is not the last iteration (has been handled before) and the value of the puzzle is not
                 // equal to the counter: false
-                if (globalCounter != PUZZLE_SIZE && puzzle[i][j] != globalCounter) {
+                if (globalCounter != PUZZLE_SIZE && puzzle[row][col] != globalCounter) {
                     return false;
                 }
             }
@@ -110,11 +110,11 @@ public class Puzzle {
         // First, retrieve 0's position
         int zeroRow = 0, zeroCol = 0, newZeroRow, newZeroCol;
 
-        for (int i = 0; i < ROW_SIZE; i++) {
-            for (int j = 0; j < COL_SIZE; j++) {
-                if (puzzle[i][j] == 0) {
-                    zeroRow = i;
-                    zeroCol = j;
+        for (int row = 0; row < ROW_SIZE; row++) {
+            for (int col = 0; col < COL_SIZE; col++) {
+                if (puzzle[row][col] == 0) {
+                    zeroRow = row;
+                    zeroCol = col;
                 }
             }
         }

@@ -1,8 +1,8 @@
-package ca.concordia.comp6721.miniproject1.solvers.bestfirstsolver;
+package ca.concordia.comp6721.miniproject1.solvers;
 
 import ca.concordia.comp6721.miniproject1.FileUtil;
 import ca.concordia.comp6721.miniproject1.Puzzle;
-import ca.concordia.comp6721.miniproject1.solvers.Solver;
+import ca.concordia.comp6721.miniproject1.heuristics.Heuristic;
 
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -11,24 +11,25 @@ import java.util.Stack;
 
 /**
  * Generic BestFirstSolver
- * Works using a heuristic that is defined in actual classes
+ * Works using a evaluate that is defined in actual classes
  */
-abstract class BestFirstSolver implements Solver {
+public class BestFirstSolver implements Solver {
 
     /**
      * Solve the Puzzle
      * @param initialPuzzle puzzle to solve
+     * @param heuristic evaluate that will be used
      * @return true if solved, false if not
      */
-    public boolean solve(Puzzle initialPuzzle) {
-        // Create the open priority queue, sorted by the heuristic in ascending order
+    public boolean solve(Puzzle initialPuzzle, Heuristic heuristic) {
+        // Create the open priority queue, sorted by the evaluate in ascending order
         PriorityQueue<Puzzle> open = new PriorityQueue<>(Comparator.comparingInt(Puzzle::getHeuristic));
 
         // The close queue does not need to be sorted, so it is a simple queue (LinkedList)
         LinkedList<Puzzle> close = new LinkedList<>();
 
-        // Set the heuristic value initialPuzzle
-        heuristic(initialPuzzle);
+        // Set the evaluate value initialPuzzle
+        heuristic.evaluate(initialPuzzle);
 
         // Add the initial puzzle to the open priority queue
         open.add(initialPuzzle);
@@ -38,7 +39,7 @@ abstract class BestFirstSolver implements Solver {
 
         while(!open.isEmpty()) {
 
-            // Get the head (highest value of the heuristic) of the queue while removing it from the PriorityQueue
+            // Get the head (highest value of the evaluate) of the queue while removing it from the PriorityQueue
             Puzzle currentPuzzleInstance = open.remove();
 
             // Get the actual puzzle from the Puzzle instance
@@ -47,8 +48,8 @@ abstract class BestFirstSolver implements Solver {
             // If puzzle is solved, return true
             if (currentPuzzleInstance.isSolved()) {
 
-                // Write current path in the puzzleBFS-h1.txt file
-                FileUtil.writeLine("puzzleBFS-h1", currentPuzzle, isFirst);
+                // Write current path in the puzzleBFS-hX.txt file
+                FileUtil.writeLine("puzzleBFS-"+heuristic.toString(), currentPuzzle, isFirst);
 
                 return true;
             }
@@ -79,16 +80,16 @@ abstract class BestFirstSolver implements Solver {
                 // most preferred move will be on top of the open stack and tried first
                 if (!open.contains(child) && !close.contains(child)) {
 
-                    // For those children, set the heuristic
-                    heuristic(child);
+                    // For those children, set the evaluate
+                    heuristic.evaluate(child);
 
                     // Finally add the puzzle to the open stack
                     open.add(child);
                 }
             }
 
-            // Write current path in the puzzleBFS-h1.txt file
-            FileUtil.writeLine("puzzleBFS-h1", currentPuzzle, isFirst);
+            // Write current path in the puzzleBFS-hX.txt file
+            FileUtil.writeLine("puzzleBFS-"+heuristic.toString(), currentPuzzle, isFirst);
 
             // This is not the first iteration anymore
             if (isFirst) {
