@@ -10,10 +10,10 @@ import java.util.PriorityQueue;
 import java.util.Stack;
 
 /**
- * Generic BestFirstSolver
+ * Generic AStarSolver
  * Works using a heuristic that is defined in actual classes
  */
-public class BestFirstSolver implements Solver {
+public class AStarSolver implements Solver {
 
     /**
      * Solve the Puzzle
@@ -23,12 +23,12 @@ public class BestFirstSolver implements Solver {
      */
     public boolean solve(Puzzle initialPuzzle, Heuristic heuristic) {
         // Create the open priority queue, sorted by the heuristic in ascending order
-        PriorityQueue<Puzzle> open = new PriorityQueue<>(Comparator.comparingInt(Puzzle::getHeuristic));
+        PriorityQueue<Puzzle> open = new PriorityQueue<>(Comparator.comparingInt(Puzzle::getTotalCost));
 
         // The close queue does not need to be sorted, so it is a simple queue (LinkedList)
         LinkedList<Puzzle> close = new LinkedList<>();
 
-        // Set the evaluate value initialPuzzle
+        // Set the heuristic value initialPuzzle
         heuristic.evaluate(initialPuzzle);
 
         // Add the initial puzzle to the open priority queue
@@ -48,8 +48,8 @@ public class BestFirstSolver implements Solver {
             // If puzzle is solved, return true
             if (currentPuzzleInstance.isSolved()) {
 
-                // Write current path in the puzzleBFS-hX.txt file
-                FileUtil.writeLine("puzzleBFS-"+heuristic.toString(), currentPuzzle, isFirst);
+                // Write current path in the puzzleAs-hX.txt file
+                FileUtil.writeLine("puzzleAs-"+heuristic.toString(), currentPuzzle, isFirst);
 
                 return true;
             }
@@ -83,13 +83,16 @@ public class BestFirstSolver implements Solver {
                     // For those children, set the heuristic
                     heuristic.evaluate(child);
 
+                    // Set the current puzzle as parent
+                    child.setParent(currentPuzzleInstance);
+
                     // Finally add the puzzle to the open stack
                     open.add(child);
                 }
             }
 
-            // Write current path in the puzzleBFS-hX.txt file
-            FileUtil.writeLine("puzzleBFS-"+heuristic.toString(), currentPuzzle, isFirst);
+            // Write current path in the puzzleAs-hX.txt file
+            FileUtil.writeLine("puzzleAs-"+heuristic.toString(), currentPuzzle, isFirst);
 
             // This is not the first iteration anymore
             if (isFirst) {

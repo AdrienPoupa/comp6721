@@ -9,6 +9,9 @@ import java.util.StringJoiner;
  */
 public class Puzzle {
 
+    /**
+     * Static properties for the Puzzle: row size, column size and total size
+     */
     public static int ROW_SIZE = 3;
     public static int COL_SIZE = 4;
     public static int PUZZLE_SIZE = ROW_SIZE * COL_SIZE;
@@ -19,32 +22,85 @@ public class Puzzle {
 
     private int heuristic;
 
+    /**
+     * Puzzle constructor
+     * @param puzzle 2D puzzle array
+     */
     Puzzle(int[][] puzzle) {
         this.puzzle = puzzle;
     }
 
+    /**
+     * Get the puzzle grid
+     * @return puzzle int[][]
+     */
     public int[][] getPuzzle() {
         return puzzle;
     }
 
+    /**
+     * Set the puzzle grid
+     * @param puzzle int[][]
+     */
     public void setPuzzle(int[][] puzzle) {
         this.puzzle = puzzle;
     }
 
+    /**
+     * Get the Puzzle's parent
+     * @return Puzzle parent
+     */
     public Puzzle getParent() {
         return parent;
     }
 
+    /**
+     * Set the Puzzle's parent
+     * @param parent Puzzle parent
+     */
     public void setParent(Puzzle parent) {
         this.parent = parent;
     }
 
+    /**
+     * Get the heuristic number
+     * @return heuristic int heuristic number
+     */
     public int getHeuristic() {
         return heuristic;
     }
 
+    /**
+     * Set the heuristic number
+     * @param heuristic int heuristic number
+     */
     public void setHeuristic(int heuristic) {
         this.heuristic = heuristic;
+    }
+
+    /**
+     * Compute f(n) using the number of parents (g(n), distance) and the heuristic (h(n))
+     * @return int total cost
+     */
+    public int getTotalCost() {
+        int totalCost = 0;
+
+        // Get the distance from the root (g(n))
+        int parentCounter = 0;
+        Puzzle currentPuzzle = this;
+        while (currentPuzzle.parent != null) {
+            parentCounter++;
+            currentPuzzle = currentPuzzle.parent;
+        }
+
+        // Add g(n)
+        totalCost += parentCounter;
+
+        // Add the estimate cost (h(n))
+        totalCost += heuristic;
+
+        // Return f(n)
+        return totalCost;
     }
 
     /**

@@ -14,7 +14,7 @@ public class DepthFirstSolver implements Solver {
     /**
      * Solve the Puzzle
      * @param initialPuzzle puzzle to solve
-     * @param heuristic evaluate that will be used (null for DFS)
+     * @param heuristic heuristic that will be used (null for DFS)
      * @return true if solved, false if not
      */
     public boolean solve(Puzzle initialPuzzle, Heuristic heuristic) {
