@@ -26,8 +26,6 @@ public class ManhattanDistanceHeuristic implements Heuristic {
         int globalCounter = 1;
         for (int row = 0; row < ROW_SIZE; row++) {
             for (int col = 0; col < COL_SIZE; col++) {
-                int currentval = puzzle[row][col];
-
 
                 // 0 has to be handled differently since we cannot do puzzle[row][col] != globalCounter
                 // If current cell is 0 and we know that it is misplaced, calculate the Manhattan distance
