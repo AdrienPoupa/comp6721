@@ -32,7 +32,7 @@ public class HammingDistanceHeuristic implements Heuristic {
 
                 // If this is not the last iteration (has been handled before) and the value of the puzzle is not
                 // equal to the counter: false
-                if (globalCounter != PUZZLE_SIZE && puzzle[i][j] != globalCounter) {
+                if (globalCounter != PUZZLE_SIZE && puzzle[i][j] != globalCounter && puzzle[i][j] != 0) {
                     numberOfTilesMisplaced++;
                 }
             }
