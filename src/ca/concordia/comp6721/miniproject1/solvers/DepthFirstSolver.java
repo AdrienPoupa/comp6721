@@ -44,7 +44,7 @@ public class DepthFirstSolver implements Solver {
             if (currentPuzzle.isSolved()) {
 
                 // Write current path in the txt file
-                currentPuzzle.writeSolutionTrace("puzzle"+toString());
+                currentPuzzle.writeSolutionTrace("puzzle"+toString()+".txt");
 
                 // Puzzle is solved, return true
                 return true;

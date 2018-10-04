@@ -72,13 +72,13 @@ public class FileUtil {
     }
 
     /**
-     * Append String in a FileUtil
+     * Append String in a file
      * @param filename name of the file
      * @param content content to add
      * @throws IOException if we cannot access the file
      */
     static void writeInFile(String filename, String content) throws IOException {
-        try (FileWriter fw = new FileWriter("results/"+filename+".txt", true);
+        try (FileWriter fw = new FileWriter("results/"+filename, true);
              BufferedWriter bw = new BufferedWriter(fw);
              PrintWriter out = new PrintWriter(bw)) {
             out.println(content);

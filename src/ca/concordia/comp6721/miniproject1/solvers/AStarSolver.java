@@ -48,7 +48,7 @@ public class AStarSolver implements Solver {
             if (currentPuzzle.isSolved()) {
 
                 // Write current path in the txt file
-                currentPuzzle.writeSolutionTrace("puzzle"+toString()+"-"+heuristic.filename());
+                currentPuzzle.writeSolutionTrace("puzzle"+toString()+"-"+heuristic.filename()+".txt");
 
                 // Puzzle is solved, return true
                 return true;
