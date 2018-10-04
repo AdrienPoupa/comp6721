@@ -41,8 +41,8 @@ public class AStarSolver implements Solver {
             // If puzzle is solved, return true
             if (currentPuzzle.isSolved()) {
 
-                // Write current path in the puzzleAs-hX.txt file
-                currentPuzzle.writeSolutionTrace("puzzleAs-"+heuristic.toString());
+                // Write current path in the txt file
+                currentPuzzle.writeSolutionTrace("puzzle"+toString()+"-"+heuristic.filename());
 
                 // Puzzle is solved, return true
                 return true;
@@ -88,5 +88,14 @@ public class AStarSolver implements Solver {
 
         // For some reason, the puzzle wasn't solved: return false
         return false;
+    }
+
+    /**
+     * Name of the solver for the filename
+     * @return As
+     */
+    @Override
+    public String toString() {
+        return "As";
     }
 }

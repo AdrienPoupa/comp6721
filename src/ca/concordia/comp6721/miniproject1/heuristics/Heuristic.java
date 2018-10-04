@@ -12,4 +12,10 @@ public interface Heuristic {
      * @param puzzle Puzzle on which to apply the heuristic
      */
     void evaluate(Puzzle puzzle);
+
+    /**
+     * Get the filename
+     * @return filename
+     */
+    String filename();
 }

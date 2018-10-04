@@ -47,10 +47,18 @@ public class PermutationsHeuristic implements Heuristic {
 
     /**
      * Name of the heuristic for the filename
-     * @return h3
+     * @return h1
+     */
+    public String filename() {
+        return "h3";
+    }
+
+    /**
+     * Name of the heuristic
+     * @return Hamming Distance
      */
     @Override
     public String toString() {
-        return "h3";
+        return "Sum of Permutation Inversions";
     }
 }

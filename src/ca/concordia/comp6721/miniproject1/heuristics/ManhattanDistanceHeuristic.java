@@ -65,10 +65,18 @@ public class ManhattanDistanceHeuristic implements Heuristic {
 
     /**
      * Name of the heuristic for the filename
-     * @return h2
+     * @return h1
+     */
+    public String filename() {
+        return "h2";
+    }
+
+    /**
+     * Name of the heuristic
+     * @return Hamming Distance
      */
     @Override
     public String toString() {
-        return "h2";
+        return "Manhattan Distance";
     }
 }

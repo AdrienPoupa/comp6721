@@ -12,12 +12,16 @@ import ca.concordia.comp6721.miniproject1.solvers.Solver;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static ca.concordia.comp6721.miniproject1.Puzzle.*;
 
 public class Main {
 
+    /**
+     * Driver of the program
+     * @param args arguments
+     */
     public static void main(String[] args) {
         System.out.println("COMP6721 Mini-project 1");
 
@@ -71,13 +75,36 @@ public class Main {
 
         System.out.println();
 
-        System.out.println("Puzzle is going to be solved using DFS with a cutoff of "+DepthFirstSolver.DEPTH_LIMIT);
+        // Solve using DFS
+        Main.dfs(initialPuzzleInstance);
 
-        Solver solver = new DepthFirstSolver();
+        // BFS with 3 heuristics
+        Main.solve(initialPuzzleInstance, new BestFirstSolver(), new HammingDistanceHeuristic());
+
+        Main.solve(initialPuzzleInstance, new BestFirstSolver(), new ManhattanDistanceHeuristic());
+
+        Main.solve(initialPuzzleInstance, new BestFirstSolver(), new PermutationsHeuristic());
+
+        // A* with 3 heuristics
+        Main.solve(initialPuzzleInstance, new AStarSolver(), new HammingDistanceHeuristic());
+
+        Main.solve(initialPuzzleInstance, new AStarSolver(), new ManhattanDistanceHeuristic());
+
+        Main.solve(initialPuzzleInstance, new AStarSolver(), new PermutationsHeuristic());
+    }
+
+    /**
+     * Solve using DFS
+     * @param puzzle Puzzle to solve
+     */
+    private static void dfs(Puzzle puzzle) {
+        System.out.println("Puzzle is going to be solved using DFS with a cutoff of "+DepthFirstSolver.DEPTH_LIMIT);
 
         long startTime = System.nanoTime();
 
-        boolean solved = solver.solve(initialPuzzleInstance, null);
+        Solver solver = new DepthFirstSolver();
+
+        boolean solved = solver.solve(puzzle, null);
 
         long stopTime = System.nanoTime();
 
@@ -86,8 +113,8 @@ public class Main {
         timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
 
         if (solved) {
-            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzleDFS.txt file.");
-            System.out.println("Number of moves: "+FileUtil.countLines("./results/puzzleDFS.txt"));
+            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzle"+solver.toString()+".txt file.");
+            System.out.println("Number of moves: "+FileUtil.countLines("./results/puzzle"+solver.toString()+".txt"));
         } else {
             System.out.println("The puzzle was not solvable with a cutoff of "+DepthFirstSolver.DEPTH_LIMIT);
         }
@@ -95,25 +122,31 @@ public class Main {
         System.out.println("Time elapsed: "+ timeElapsed +" ms");
 
         System.out.println();
+    }
 
-        System.out.println("Puzzle is going to be solved using BFS-h1 (Hamming Distance)");
+    /**
+     * Generic solver for BFS or A*
+     * @param puzzle Puzzle to solve
+     * @param solver solver
+     * @param heuristic heuristic
+     */
+    private static void solve(Puzzle puzzle, Solver solver, Heuristic heuristic) {
+        String filename = solver.toString() + "-" + heuristic.filename();
+        System.out.println("Puzzle is going to be solved using "+filename+" ("+heuristic.toString()+")");
 
-        solver = new BestFirstSolver();
-        Heuristic heuristic = new HammingDistanceHeuristic();
+        long startTime = System.nanoTime();
 
-        startTime = System.nanoTime();
+        boolean solved = solver.solve(puzzle, heuristic);
 
-        solved = solver.solve(initialPuzzleInstance, heuristic);
+        long stopTime = System.nanoTime();
 
-        stopTime = System.nanoTime();
-
-        timeElapsed = stopTime - startTime;
+        long timeElapsed = stopTime - startTime;
 
         timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
 
         if (solved) {
-            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzleBFS-"+heuristic.toString()+".txt file.");
-            System.out.println("Number of moves: "+FileUtil.countLines("./results/puzzleBFS-"+heuristic.toString()+".txt"));
+            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzle"+filename+".txt file.");
+            System.out.println("Number of moves: "+FileUtil.countLines("./results/puzzle"+filename+".txt"));
         } else {
             System.out.println("The puzzle was not solvable");
         }
@@ -121,128 +154,6 @@ public class Main {
         System.out.println("Time elapsed: "+ timeElapsed +" ms");
 
         System.out.println();
-
-        System.out.println("Puzzle is going to be solved using BFS-h2 (Manhattan Distance)");
-
-        heuristic = new ManhattanDistanceHeuristic();
-
-        startTime = System.nanoTime();
-
-        solved = solver.solve(initialPuzzleInstance, heuristic);
-
-        stopTime = System.nanoTime();
-
-        timeElapsed = stopTime - startTime;
-
-        timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
-
-        if (solved) {
-            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzleBFS-"+heuristic.toString()+".txt file.");
-            System.out.println("Number of moves: "+FileUtil.countLines("./results/puzzleBFS-"+heuristic.toString()+".txt"));
-        } else {
-            System.out.println("The puzzle was not solvable");
-        }
-
-        System.out.println("Time elapsed: "+ timeElapsed +" ms");
-
-        System.out.println();
-
-        System.out.println("Puzzle is going to be solved using BFS-h3 (Sum of Permutation Inversions)");
-
-        heuristic = new PermutationsHeuristic();
-
-        startTime = System.nanoTime();
-
-        solved = solver.solve(initialPuzzleInstance, heuristic);
-
-        stopTime = System.nanoTime();
-
-        timeElapsed = stopTime - startTime;
-
-        timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
-
-        if (solved) {
-            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzleBFS-"+heuristic.toString()+".txt file.");
-            System.out.println("Number of moves: "+FileUtil.countLines("./results/puzzleBFS-"+heuristic.toString()+".txt"));
-        } else {
-            System.out.println("The puzzle was not solvable");
-        }
-
-        System.out.println("Time elapsed: "+ timeElapsed +" ms");
-
-        System.out.println();
-
-        System.out.println("Puzzle is going to be solved using As-h1 (Hamming Distance)");
-
-        solver = new AStarSolver();
-        heuristic = new HammingDistanceHeuristic();
-
-        solved = solver.solve(initialPuzzleInstance, heuristic);
-
-        stopTime = System.nanoTime();
-
-        timeElapsed = stopTime - startTime;
-
-        timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
-
-        if (solved) {
-            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzleAs-"+heuristic.toString()+".txt file.");
-            System.out.println("Number of moves: "+FileUtil.countLines("./results/puzzleAs-"+heuristic.toString()+".txt"));
-        } else {
-            System.out.println("The puzzle was not solvable");
-        }
-
-        System.out.println("Time elapsed: "+ timeElapsed +" ms");
-
-        System.out.println();
-
-        System.out.println("Puzzle is going to be solved using As-h2 (Manhattan Distance)");
-
-        heuristic = new ManhattanDistanceHeuristic();
-
-        startTime = System.nanoTime();
-
-        solved = solver.solve(initialPuzzleInstance, heuristic);
-
-        stopTime = System.nanoTime();
-
-        timeElapsed = stopTime - startTime;
-
-        timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
-
-        if (solved) {
-            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzleAs-"+heuristic.toString()+".txt file.");
-            System.out.println("Number of moves: "+FileUtil.countLines("./results/puzzleAs-"+heuristic.toString()+".txt"));
-        } else {
-            System.out.println("The puzzle was not solvable");
-        }
-
-        System.out.println("Time elapsed: "+ timeElapsed +" ms");
-
-        System.out.println();
-
-        System.out.println("Puzzle is going to be solved using As-h3 (Sum of Permutation Inversions)");
-
-        heuristic = new PermutationsHeuristic();
-
-        startTime = System.nanoTime();
-
-        solved = solver.solve(initialPuzzleInstance, heuristic);
-
-        stopTime = System.nanoTime();
-
-        timeElapsed = stopTime - startTime;
-
-        timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
-
-        if (solved) {
-            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzleAs-"+heuristic.toString()+".txt file.");
-            System.out.println("Number of moves: "+FileUtil.countLines("./results/puzzleAs-"+heuristic.toString()+".txt"));
-        } else {
-            System.out.println("The puzzle was not solvable");
-        }
-
-        System.out.println("Time elapsed: "+ timeElapsed +" ms");
     }
 
 }
