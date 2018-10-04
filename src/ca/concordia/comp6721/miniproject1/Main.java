@@ -66,15 +66,33 @@ public class Main {
         // Create a puzzle instance based on the initial puzzle
         Puzzle initialPuzzleInstance = new Puzzle(initialPuzzle);
 
-        /*System.out.println("Puzzle is going to be solved using DFS");
-        System.out.println(initialPuzzleInstance);*/
+        System.out.println("Puzzle to solve:");
+        System.out.println(initialPuzzleInstance);
+
+        System.out.println();
+
+        System.out.println("Puzzle is going to be solved using DFS with a cutoff of "+DepthFirstSolver.DEPTH_LIMIT);
 
         Solver solver = new DepthFirstSolver();
 
-        //solver.solve(initialPuzzleInstance, null);
+        long startTime = System.nanoTime();
 
-        System.out.println("Puzzle to solve:");
-        System.out.println(initialPuzzleInstance);
+        boolean solved = solver.solve(initialPuzzleInstance, null);
+
+        long stopTime = System.nanoTime();
+
+        long timeElapsed = stopTime - startTime;
+
+        timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
+
+        if (solved) {
+            System.out.println("The puzzle has been solved! Please have a look at the /results/puzzleDFS.txt file.");
+            System.out.println("Number of moves: "+FileUtil.countLines("./results/puzzleDFS.txt"));
+        } else {
+            System.out.println("The puzzle was not solvable with a cutoff of "+DepthFirstSolver.DEPTH_LIMIT);
+        }
+
+        System.out.println("Time elapsed: "+ timeElapsed +" ms");
 
         System.out.println();
 
@@ -83,13 +101,13 @@ public class Main {
         solver = new BestFirstSolver();
         Heuristic heuristic = new HammingDistanceHeuristic();
 
-        long startTime = System.nanoTime();
+        startTime = System.nanoTime();
 
-        boolean solved = solver.solve(initialPuzzleInstance, heuristic);
+        solved = solver.solve(initialPuzzleInstance, heuristic);
 
-        long stopTime = System.nanoTime();
+        stopTime = System.nanoTime();
 
-        long timeElapsed = stopTime - startTime;
+        timeElapsed = stopTime - startTime;
 
         timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
 

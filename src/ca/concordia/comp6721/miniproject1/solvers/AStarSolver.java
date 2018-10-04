@@ -36,13 +36,13 @@ public class AStarSolver implements Solver {
         while(!open.isEmpty()) {
 
             // Get the head (highest value of the heuristic) of the queue while removing it from the PriorityQueue
-            Puzzle currentPuzzleInstance = open.remove();
+            Puzzle currentPuzzle = open.remove();
 
             // If puzzle is solved, return true
-            if (currentPuzzleInstance.isSolved()) {
+            if (currentPuzzle.isSolved()) {
 
                 // Write current path in the puzzleAs-hX.txt file
-                currentPuzzleInstance.writeSolutionTrace("puzzleAs-"+heuristic.toString());
+                currentPuzzle.writeSolutionTrace("puzzleAs-"+heuristic.toString());
 
                 // Puzzle is solved, return true
                 return true;
@@ -51,7 +51,7 @@ public class AStarSolver implements Solver {
             // Evaluate the puzzle: get the children
             // We will move the 0 tile in 8 different positions, if possible.
             // Here, we get a stack with all the admissible children.
-            Stack<Puzzle> childrenReverse = currentPuzzleInstance.generateChildren();
+            Stack<Puzzle> childrenReverse = currentPuzzle.generateChildren();
 
             // This stack will be in correct order
             Stack<Puzzle> children = new Stack<>();
@@ -63,7 +63,7 @@ public class AStarSolver implements Solver {
             }
 
             // Add the current puzzle to the close queue
-            close.add(currentPuzzleInstance);
+            close.add(currentPuzzle);
 
             // Discard existing children and insert the others in the open stack
             while (!children.isEmpty()) {
@@ -78,7 +78,7 @@ public class AStarSolver implements Solver {
                     heuristic.evaluate(child);
 
                     // Set the current puzzle as parent
-                    child.setParent(currentPuzzleInstance);
+                    child.setParent(currentPuzzle);
 
                     // Finally add the puzzle to the open stack
                     open.add(child);

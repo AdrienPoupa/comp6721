@@ -85,12 +85,7 @@ public class Puzzle {
         int totalCost = 0;
 
         // Get the distance from the root (g(n))
-        int parentCounter = 0;
-        Puzzle currentPuzzle = this;
-        while (currentPuzzle.getParent() != null) {
-            parentCounter++;
-            currentPuzzle = currentPuzzle.getParent();
-        }
+        int parentCounter = this.getNumberOfParents();
 
         // Add g(n)
         totalCost += parentCounter;
@@ -100,6 +95,24 @@ public class Puzzle {
 
         // Return f(n)
         return totalCost;
+    }
+
+    /**
+     * Compute the number of parents
+     * @return int number of parents
+     */
+    public int getNumberOfParents() {
+
+        // Get the distance from the root (g(n))
+        int parentCounter = 0;
+        Puzzle currentPuzzle = this;
+        while (currentPuzzle.getParent() != null) {
+            parentCounter++;
+            currentPuzzle = currentPuzzle.getParent();
+        }
+
+        // Return f(n)
+        return parentCounter;
     }
 
     /**
