@@ -19,6 +19,11 @@ import static ca.concordia.comp6721.miniproject1.Puzzle.*;
 public class Main {
 
     /**
+     * How long should we solve before timeout
+     */
+    private static int SECONDS_BEFORE_TIMEOUT = 5;
+
+    /**
      * Driver of the program
      * @param args arguments
      */
@@ -76,28 +81,47 @@ public class Main {
         System.out.println();
 
         // Solve using DFS
-        Main.dfs(initialPuzzleInstance);
+        Main.executeThread(new PuzzleDFSSolverCallable(initialPuzzleInstance));
 
         // BFS with 3 heuristics
-        Main.solve(initialPuzzleInstance, new BestFirstSolver(), new HammingDistanceHeuristic());
+        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new BestFirstSolver(), new HammingDistanceHeuristic()));
 
-        Main.solve(initialPuzzleInstance, new BestFirstSolver(), new ManhattanDistanceHeuristic());
+        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new BestFirstSolver(), new ManhattanDistanceHeuristic()));
 
-        Main.solve(initialPuzzleInstance, new BestFirstSolver(), new PermutationsHeuristic());
+        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new BestFirstSolver(), new PermutationsHeuristic()));
 
         // A* with 3 heuristics
-        Main.solve(initialPuzzleInstance, new AStarSolver(), new HammingDistanceHeuristic());
+        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new AStarSolver(), new HammingDistanceHeuristic()));
 
-        Main.solve(initialPuzzleInstance, new AStarSolver(), new ManhattanDistanceHeuristic());
+        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new AStarSolver(), new ManhattanDistanceHeuristic()));
 
-        Main.solve(initialPuzzleInstance, new AStarSolver(), new PermutationsHeuristic());
+        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new AStarSolver(), new PermutationsHeuristic()));
+
+        System.exit(0);
+    }
+
+    /**
+     * Execute the solving thread
+     */
+    private static void executeThread(Callable<Boolean> callable) {
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        Future<Boolean> future = executor.submit(callable);
+        try {
+            future.get(SECONDS_BEFORE_TIMEOUT, TimeUnit.SECONDS);
+        } catch (TimeoutException | InterruptedException | ExecutionException ex) {
+            System.out.println("Stopping resolution after "+SECONDS_BEFORE_TIMEOUT+" seconds");
+            System.out.println();
+        } finally {
+            future.cancel(true);
+            executor.shutdownNow();
+        }
     }
 
     /**
      * Solve using DFS
      * @param puzzle Puzzle to solve
      */
-    private static void dfs(Puzzle puzzle) {
+    private static boolean solveDFS(Puzzle puzzle) {
         System.out.println("Puzzle is going to be solved using DFS with a cutoff of "+DepthFirstSolver.DEPTH_LIMIT);
 
         long startTime = System.nanoTime();
@@ -122,6 +146,8 @@ public class Main {
         System.out.println("Time elapsed: "+ timeElapsed +" ms");
 
         System.out.println();
+
+        return solved;
     }
 
     /**
@@ -130,7 +156,7 @@ public class Main {
      * @param solver solver
      * @param heuristic heuristic
      */
-    private static void solve(Puzzle puzzle, Solver solver, Heuristic heuristic) {
+    private static boolean solve(Puzzle puzzle, Solver solver, Heuristic heuristic) {
         String filename = solver.toString() + "-" + heuristic.filename();
         System.out.println("Puzzle is going to be solved using "+filename+" ("+heuristic.toString()+")");
 
@@ -154,6 +180,44 @@ public class Main {
         System.out.println("Time elapsed: "+ timeElapsed +" ms");
 
         System.out.println();
+
+        return solved;
+    }
+
+    /**
+     * Wrapper for a Callable puzzle solving task
+     */
+    static class PuzzleSolverCallable implements Callable<Boolean> {
+        final Puzzle puzzle;
+        final Solver solver;
+        final Heuristic heuristic;
+
+        PuzzleSolverCallable(Puzzle puzzle, Solver solver, Heuristic heuristic) {
+            this.puzzle = puzzle;
+            this.solver = solver;
+            this.heuristic = heuristic;
+        }
+
+        @Override
+        public Boolean call() {
+            return Main.solve(puzzle, solver, heuristic);
+        }
+    }
+
+    /**
+     * Wrapper for a Callable puzzle DFS solving task
+     */
+    static class PuzzleDFSSolverCallable implements Callable<Boolean> {
+        final Puzzle puzzle;
+
+        PuzzleDFSSolverCallable(Puzzle puzzle) {
+            this.puzzle = puzzle;
+        }
+
+        @Override
+        public Boolean call() {
+            return Main.solveDFS(puzzle);
+        }
     }
 
 }

@@ -35,6 +35,12 @@ public class BestFirstSolver implements Solver {
 
         while(!open.isEmpty()) {
 
+            // Exit if needed
+            if (Thread.currentThread().isInterrupted()) {
+                // Cannot use InterruptedException since it's checked
+                throw new RuntimeException();
+            }
+
             // Get the head (highest value of the heuristic) of the queue while removing it from the PriorityQueue
             Puzzle currentPuzzle = open.remove();
 

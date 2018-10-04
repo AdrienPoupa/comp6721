@@ -31,6 +31,13 @@ public class DepthFirstSolver implements Solver {
 
         // As long as we have grids to solve in the open stack
         while (!open.isEmpty()) {
+
+            // Exit if needed
+            if (Thread.currentThread().isInterrupted()) {
+                // Cannot use InterruptedException since it's checked
+                throw new RuntimeException();
+            }
+
             Puzzle currentPuzzle = open.pop();
 
             // If puzzle is solved, return true
