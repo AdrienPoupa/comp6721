@@ -30,10 +30,52 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("COMP6721 Mini-project 1");
 
+        // Delete existing trace solutions
         FileUtil.deleteFiles();
 
-        // Test data: 1 0 3 7 5 2 6 4 9 10 11 8
+        Puzzle initialPuzzle;
 
+        if (args.length != 0 && args[0].equals("random")) {
+            // Get a random puzzle
+            initialPuzzle = Puzzle.generateRandom();
+        } else {
+            // Get the initial puzzle from the input
+            // Create a puzzle instance based on the initial puzzle
+            // Test data: 1 0 3 7 5 2 6 4 9 10 11 8
+            initialPuzzle = new Puzzle(getInitialPuzzle());
+        }
+
+        // Solve the puzzle
+        solvePuzzle(initialPuzzle);
+    }
+
+    private static void solvePuzzle(Puzzle puzzle) {
+        System.out.println("Puzzle to solve:");
+        System.out.println(puzzle);
+
+        System.out.println();
+
+        // Solve using DFS
+        Main.executeThread(new PuzzleDFSSolverCallable(puzzle));
+
+        // BFS with 3 heuristics
+        Main.executeThread(new PuzzleSolverCallable(puzzle, new BestFirstSolver(), new HammingDistanceHeuristic()));
+
+        Main.executeThread(new PuzzleSolverCallable(puzzle, new BestFirstSolver(), new ManhattanDistanceHeuristic()));
+
+        Main.executeThread(new PuzzleSolverCallable(puzzle, new BestFirstSolver(), new PermutationsHeuristic()));
+
+        // A* with 3 heuristics
+        Main.executeThread(new PuzzleSolverCallable(puzzle, new AStarSolver(), new HammingDistanceHeuristic()));
+
+        Main.executeThread(new PuzzleSolverCallable(puzzle, new AStarSolver(), new ManhattanDistanceHeuristic()));
+
+        Main.executeThread(new PuzzleSolverCallable(puzzle, new AStarSolver(), new PermutationsHeuristic()));
+
+        System.exit(0);
+    }
+
+    private static int[][] getInitialPuzzle() {
         int[][] initialPuzzle = new int[ROW_SIZE][COL_SIZE];
 
         Scanner scanner = new Scanner(System.in);
@@ -46,7 +88,7 @@ public class Main {
                     initialPuzzle[row][col] = number;
                 } catch (InputMismatchException e) {
                     System.out.println("Please input numbers");
-                    return;
+                    System.exit(0);
                 }
             }
         }
@@ -69,35 +111,10 @@ public class Main {
         // If the ArrayList is not empty, we have a problem
         if (!expectedValues.isEmpty()) {
             System.out.println("The numbers you entered are not valid");
-            return;
+            System.exit(0);
         }
 
-        // Create a puzzle instance based on the initial puzzle
-        Puzzle initialPuzzleInstance = new Puzzle(initialPuzzle);
-
-        System.out.println("Puzzle to solve:");
-        System.out.println(initialPuzzleInstance);
-
-        System.out.println();
-
-        // Solve using DFS
-        Main.executeThread(new PuzzleDFSSolverCallable(initialPuzzleInstance));
-
-        // BFS with 3 heuristics
-        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new BestFirstSolver(), new HammingDistanceHeuristic()));
-
-        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new BestFirstSolver(), new ManhattanDistanceHeuristic()));
-
-        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new BestFirstSolver(), new PermutationsHeuristic()));
-
-        // A* with 3 heuristics
-        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new AStarSolver(), new HammingDistanceHeuristic()));
-
-        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new AStarSolver(), new ManhattanDistanceHeuristic()));
-
-        Main.executeThread(new PuzzleSolverCallable(initialPuzzleInstance, new AStarSolver(), new PermutationsHeuristic()));
-
-        System.exit(0);
+        return initialPuzzle;
     }
 
     /**
