@@ -2,7 +2,8 @@ package ca.concordia.comp6721.miniproject1.heuristics;
 
 import ca.concordia.comp6721.miniproject1.Puzzle;
 
-import static ca.concordia.comp6721.miniproject1.Puzzle.*;
+import static ca.concordia.comp6721.miniproject1.Puzzle.COL_SIZE;
+import static ca.concordia.comp6721.miniproject1.Puzzle.ROW_SIZE;
 
 /**
  * Hamming distance evaluate for the BestFirstSolver

@@ -13,5 +13,4 @@ We move the blank tile; for example, UP means "move the blank tile UP"
 
 ### Running the program
 
-TODO: Display only the solution path
-TODO: Puzzle Generator
+TODO: DFS cutoff

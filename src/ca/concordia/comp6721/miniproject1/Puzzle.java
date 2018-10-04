@@ -1,8 +1,7 @@
 package ca.concordia.comp6721.miniproject1;
 
-import java.util.Arrays;
-import java.util.Stack;
-import java.util.StringJoiner;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Puzzle class
@@ -88,9 +87,9 @@ public class Puzzle {
         // Get the distance from the root (g(n))
         int parentCounter = 0;
         Puzzle currentPuzzle = this;
-        while (currentPuzzle.parent != null) {
+        while (currentPuzzle.getParent() != null) {
             parentCounter++;
-            currentPuzzle = currentPuzzle.parent;
+            currentPuzzle = currentPuzzle.getParent();
         }
 
         // Add g(n)
@@ -279,6 +278,72 @@ public class Puzzle {
             // Now that the puzzle is ready, push it to the potential children stack
             children.push(puzzle);
         }
+    }
+
+    /**
+     * Write the solution trace to the specified file
+     * @param filename name of the file in which to write the solution
+     */
+    public void writeSolutionTrace(String filename) {
+
+        String line;
+
+        // We will store the trace in a stack for now
+        Stack<String> trace = new Stack<>();
+
+        // Loop though the puzzle tree structure from bottom to top
+        Puzzle currentPuzzle = this;
+        while (currentPuzzle.getParent() != null) {
+            line = FileUtil.getLine(currentPuzzle.getPuzzle(), false);
+            trace.push(line);
+            currentPuzzle = currentPuzzle.getParent();
+        }
+
+        // Last Puzzle, the root Puzzle
+        line = FileUtil.getLine(currentPuzzle.getPuzzle(), true);
+        trace.push(line);
+
+        // Now, unstack everything and write line by line
+        while (!trace.isEmpty()) {
+            line = trace.pop();
+            try {
+                FileUtil.writeInFile(filename, line);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Generate a random puzzle
+     * @return random Puzzle
+     */
+    public static Puzzle generateRandom() {
+        // Values that have to be in the puzzle: 0 to PUZZLE_SIZE - 1 (so 0 to 11 for a 3 * 4 puzzle)
+        // Create an ArrayList containing those numbers
+        ArrayList<Integer> values = new ArrayList<>();
+        for(int i = 0; i < PUZZLE_SIZE; i++) {
+            values.add(i);
+        }
+
+        // Shuffle the ArrayList for randomness
+        Collections.shuffle(values);
+
+        // Create the 2D array puzzle
+        int[][] puzzle = new int[ROW_SIZE][COL_SIZE];
+
+        // Fill it with the values from above
+        int globalCounter = 0;
+        for (int row = 0; row < ROW_SIZE; row++) {
+            for (int col = 0; col < COL_SIZE; col++) {
+                int number = values.get(globalCounter);
+                puzzle[row][col] = number;
+                globalCounter++;
+            }
+        }
+
+        // Return an instance with the newly generated Puzzle
+        return new Puzzle(puzzle);
     }
 
     /**

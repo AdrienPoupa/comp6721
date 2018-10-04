@@ -1,6 +1,5 @@
 package ca.concordia.comp6721.miniproject1.solvers;
 
-import ca.concordia.comp6721.miniproject1.FileUtil;
 import ca.concordia.comp6721.miniproject1.Puzzle;
 import ca.concordia.comp6721.miniproject1.heuristics.Heuristic;
 
@@ -21,23 +20,19 @@ public class DepthFirstSolver implements Solver {
         Stack<Puzzle> open = new Stack<>();
         Stack<Puzzle> close = new Stack<>();
 
+        // Add the initial puzzle to the open stack
         open.add(initialPuzzle);
-
-        // Is it the first iteration? Useful for the first line of the trace
-        boolean isFirst = true;
 
         // As long as we have grids to solve in the open stack
         while (!open.isEmpty()) {
             Puzzle currentPuzzleInstance = open.pop();
 
-            // Get the actual puzzle from the Puzzle instance
-            int[][] currentPuzzle = currentPuzzleInstance.getPuzzle();
-
             // If puzzle is solved, return true
             if (currentPuzzleInstance.isSolved()) {
                 // Write current path in the puzzleDFS.txt file
-                FileUtil.writeLine("puzzleDFS", currentPuzzle, isFirst);
+                currentPuzzleInstance.writeSolutionTrace("puzzleDFS");
 
+                // Puzzle is solved, return true
                 return true;
             }
 
@@ -56,19 +51,17 @@ public class DepthFirstSolver implements Solver {
                 // We'll push UP-LEFT moves to UP last (least preferred to most preferred, so the
                 // most preferred move will be on top of the open stack and tried first
                 if (!open.contains(child) && !close.contains(child)) {
+
+                    // Set the current puzzle as parent
+                    child.setParent(currentPuzzleInstance);
+
+                    // Push the child to the open stack
                     open.push(child);
                 }
             }
-
-            // Write current path in the puzzleDFS.txt file
-            FileUtil.writeLine("puzzleDFS", currentPuzzle, isFirst);
-
-            // This is not the first iteration anymore
-            if (isFirst) {
-                isFirst = false;
-            }
         }
 
+        // For some reason, the puzzle wasn't solved: return false
         return false;
     }
 }

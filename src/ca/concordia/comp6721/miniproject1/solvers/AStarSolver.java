@@ -1,6 +1,5 @@
 package ca.concordia.comp6721.miniproject1.solvers;
 
-import ca.concordia.comp6721.miniproject1.FileUtil;
 import ca.concordia.comp6721.miniproject1.Puzzle;
 import ca.concordia.comp6721.miniproject1.heuristics.Heuristic;
 
@@ -34,23 +33,18 @@ public class AStarSolver implements Solver {
         // Add the initial puzzle to the open priority queue
         open.add(initialPuzzle);
 
-        // Is it the first iteration? Useful for the first line of the trace
-        boolean isFirst = true;
-
         while(!open.isEmpty()) {
 
             // Get the head (highest value of the heuristic) of the queue while removing it from the PriorityQueue
             Puzzle currentPuzzleInstance = open.remove();
 
-            // Get the actual puzzle from the Puzzle instance
-            int[][] currentPuzzle = currentPuzzleInstance.getPuzzle();
-
             // If puzzle is solved, return true
             if (currentPuzzleInstance.isSolved()) {
 
                 // Write current path in the puzzleAs-hX.txt file
-                FileUtil.writeLine("puzzleAs-"+heuristic.toString(), currentPuzzle, isFirst);
+                currentPuzzleInstance.writeSolutionTrace("puzzleAs-"+heuristic.toString());
 
+                // Puzzle is solved, return true
                 return true;
             }
 
@@ -90,16 +84,9 @@ public class AStarSolver implements Solver {
                     open.add(child);
                 }
             }
-
-            // Write current path in the puzzleAs-hX.txt file
-            FileUtil.writeLine("puzzleAs-"+heuristic.toString(), currentPuzzle, isFirst);
-
-            // This is not the first iteration anymore
-            if (isFirst) {
-                isFirst = false;
-            }
         }
 
+        // For some reason, the puzzle wasn't solved: return false
         return false;
     }
 }

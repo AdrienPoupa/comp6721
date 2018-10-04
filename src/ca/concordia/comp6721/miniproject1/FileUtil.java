@@ -26,7 +26,7 @@ public class FileUtil {
      * @param isFirstLine Do we want to write the first line?
      * @return String to write, like: e [1, 2, 3, 4, 0, 5, 6, 7, 8, 9, 10, 11]
      */
-    private static String getLine(int[][] puzzle, boolean isFirstLine) {
+    static String getLine(int[][] puzzle, boolean isFirstLine) {
         StringBuilder line = new StringBuilder();
 
         // Add the move letter
@@ -71,24 +71,13 @@ public class FileUtil {
         return line.toString();
     }
 
-    public static void writeLine(String filename, int[][] currentPuzzle, boolean isFirst) {
-        // Write current path in the puzzleDFS.txt file
-        String line = FileUtil.getLine(currentPuzzle, isFirst);
-
-        try {
-            FileUtil.writeInFile(filename, line);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
      * Append String in a FileUtil
      * @param filename name of the file
      * @param content content to add
      * @throws IOException if we cannot access the file
      */
-    private static void writeInFile(String filename, String content) throws IOException {
+    static void writeInFile(String filename, String content) throws IOException {
         try (FileWriter fw = new FileWriter("results/"+filename+".txt", true);
              BufferedWriter bw = new BufferedWriter(fw);
              PrintWriter out = new PrintWriter(bw)) {
