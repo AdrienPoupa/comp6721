@@ -5,7 +5,7 @@ import ca.concordia.comp6721.miniproject1.Puzzle;
 import static ca.concordia.comp6721.miniproject1.Puzzle.*;
 
 /**
- * Hamming distance evaluate for the BestFirstSolver
+ * Hamming distance heuristic for the BestFirstSolver
  */
 public class HammingDistanceHeuristic implements Heuristic {
     /**

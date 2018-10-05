@@ -27,7 +27,7 @@ public class BestFirstSolver implements Solver {
         // The close queue does not need to be sorted, so it is a simple queue (LinkedList)
         LinkedList<Puzzle> close = new LinkedList<>();
 
-        // Set the evaluate value initialPuzzle
+        // Set the heuristic value initialPuzzle
         heuristic.evaluate(initialPuzzle);
 
         // Add the initial puzzle to the open priority queue

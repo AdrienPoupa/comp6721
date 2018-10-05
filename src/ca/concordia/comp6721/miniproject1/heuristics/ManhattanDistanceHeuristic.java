@@ -6,7 +6,7 @@ import static ca.concordia.comp6721.miniproject1.Puzzle.COL_SIZE;
 import static ca.concordia.comp6721.miniproject1.Puzzle.ROW_SIZE;
 
 /**
- * Hamming distance evaluate for the BestFirstSolver
+ * Manhattan distance heuristic for the BestFirstSolver
  */
 public class ManhattanDistanceHeuristic implements Heuristic {
     /**

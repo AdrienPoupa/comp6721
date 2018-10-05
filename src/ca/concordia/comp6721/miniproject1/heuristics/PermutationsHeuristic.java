@@ -5,7 +5,7 @@ import ca.concordia.comp6721.miniproject1.Puzzle;
 import java.util.Arrays;
 
 /**
- * Hamming distance evaluate for the BestFirstSolver
+ * Sum of Permutations Inversions heuristic for the BestFirstSolver
  */
 public class PermutationsHeuristic implements Heuristic {
     /**

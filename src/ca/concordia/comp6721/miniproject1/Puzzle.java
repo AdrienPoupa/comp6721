@@ -164,7 +164,7 @@ public class Puzzle {
 
     /**
      * Generate the children of a Puzzle, in the following order:
-     * UP > UP-RIGHT > RIGHT > DOWN-RIGHT > DOWN > DOWN-LEFT > LEFT > UP-LEFT
+     * UP - UP-RIGHT - RIGHT - DOWN-RIGHT - DOWN - DOWN-LEFT - LEFT - UP-LEFT
      * UP is pushed first, so it is in the bottom of the stack and will be processed last
      * But this results in it being pushed at the top of the open stack for DFS, which we want
      * @return Stack of Puzzles

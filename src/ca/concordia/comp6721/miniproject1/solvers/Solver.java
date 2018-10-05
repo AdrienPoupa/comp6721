@@ -11,6 +11,7 @@ public interface Solver {
     /**
      * Solve the Puzzle
      * @param puzzle puzzle to solve
+     * @param heuristic the heuristic to use
      * @return true if solved, false if not
      */
     boolean solve(Puzzle puzzle, Heuristic heuristic);

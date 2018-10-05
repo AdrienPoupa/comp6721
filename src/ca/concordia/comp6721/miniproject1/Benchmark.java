@@ -15,6 +15,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
 
+/**
+ * Evaluate the performance of the solvers using this benchmark
+ */
 public class Benchmark {
 
     /**

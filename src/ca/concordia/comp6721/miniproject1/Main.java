@@ -16,6 +16,9 @@ import java.util.concurrent.*;
 
 import static ca.concordia.comp6721.miniproject1.Puzzle.*;
 
+/**
+ * The Main driver for the project
+ */
 public class Main {
 
     /**
