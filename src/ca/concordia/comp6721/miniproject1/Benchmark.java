@@ -22,7 +22,7 @@ public class Benchmark {
      * How long should we solve before timeout
      */
     private static int SECONDS_BEFORE_TIMEOUT = 5;
-    private static int NUMBER_OF_PUZZLES = 1;
+    private static int NUMBER_OF_PUZZLES = 10;
 
     /**
      * Driver of the program
