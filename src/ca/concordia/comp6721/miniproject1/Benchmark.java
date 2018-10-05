@@ -10,9 +10,7 @@ import ca.concordia.comp6721.miniproject1.solvers.DepthFirstSolver;
 import ca.concordia.comp6721.miniproject1.solvers.Solver;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -23,8 +21,8 @@ public class Benchmark {
     /**
      * How long should we solve before timeout
      */
-    private static int SECONDS_BEFORE_TIMEOUT = 2;
-    private static int NUMBER_OF_PUZZLES = 100;
+    private static int SECONDS_BEFORE_TIMEOUT = 5;
+    private static int NUMBER_OF_PUZZLES = 1;
 
     /**
      * Driver of the program
@@ -37,7 +35,8 @@ public class Benchmark {
         FileUtil.deleteFiles();
 
         // Write header
-        String header = "Puzzle Number,DFS,BFS-h1,BFS-h2,BFS-h3,As-h1,As-h2,As-h3";
+        String header = "Puzzle Number,Puzzle,DFS-Duration,DFS-Moves,BFS-h1-Duration,BFS-h1-Moves,BFS-h2-Duration,BFS-h2-Moves," +
+                "BFS-h3-Duration,BFS-h3-Moves,As-h1-Duration,As-h1-Moves,As-h2-Duration,As-h2-Moves,As-h3-Duration,As-h3-Moves";
         try {
             FileUtil.writeInFile("benchmark.csv", header);
         } catch (IOException e) {
@@ -54,31 +53,39 @@ public class Benchmark {
     }
 
     private static void solvePuzzle(Puzzle puzzle, int counter) {
-        List<Integer> executionTimes = new ArrayList<>();
+        List<String> line = new ArrayList<>();
 
         // Add the puzzle number
-        executionTimes.add(counter);
+        line.add(String.valueOf(counter));
+
+        // Display the puzzle as a list of numbers, like 1-2-3-4-5-6-7-8-9-10-11-0
+        line.add(Arrays.stream(puzzle.getPuzzle())
+                .flatMapToInt(Arrays::stream).mapToObj(String::valueOf)
+                .reduce((a, b) -> a.concat("-").concat(b))
+                .get());
+
+        Integer[] threadResults;
 
         // Solve using DFS
-        executionTimes.add(Benchmark.executeThread(new PuzzleDFSSolverCallable(puzzle)));
+        Arrays.stream(Benchmark.executeThread(new PuzzleDFSSolverCallable(puzzle))).forEach(e -> line.add(String.valueOf(e)));
 
         // BFS with 3 heuristics
-        executionTimes.add(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new BestFirstSolver(), new HammingDistanceHeuristic())));
+        Arrays.stream(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new BestFirstSolver(), new HammingDistanceHeuristic()))).forEach(e -> line.add(String.valueOf(e)));
 
-        executionTimes.add(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new BestFirstSolver(), new ManhattanDistanceHeuristic())));
+        Arrays.stream(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new BestFirstSolver(), new ManhattanDistanceHeuristic()))).forEach(e -> line.add(String.valueOf(e)));
 
-        executionTimes.add(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new BestFirstSolver(), new PermutationsHeuristic())));
+        Arrays.stream(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new BestFirstSolver(), new PermutationsHeuristic()))).forEach(e -> line.add(String.valueOf(e)));
 
         // A* with 3 heuristics
-        executionTimes.add(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new AStarSolver(), new HammingDistanceHeuristic())));
+        Arrays.stream(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new AStarSolver(), new HammingDistanceHeuristic()))).forEach(e -> line.add(String.valueOf(e)));
 
-        executionTimes.add(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new AStarSolver(), new ManhattanDistanceHeuristic())));
+        Arrays.stream(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new AStarSolver(), new ManhattanDistanceHeuristic()))).forEach(e -> line.add(String.valueOf(e)));
 
-        executionTimes.add(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new AStarSolver(), new PermutationsHeuristic())));
+        Arrays.stream(Benchmark.executeThread(new PuzzleSolverCallable(puzzle, new AStarSolver(), new PermutationsHeuristic()))).forEach(e -> line.add(String.valueOf(e)));
 
         // Convert the list to a line to insert in the CSV
         StringBuilder stringBuilder  = new StringBuilder();
-        Iterator<Integer> iterator = executionTimes.iterator();
+        Iterator<String> iterator = line.iterator();
         while (iterator.hasNext()) {
             stringBuilder.append(iterator.next());
             if (iterator.hasNext()){
@@ -97,9 +104,9 @@ public class Benchmark {
     /**
      * Execute the solving thread
      */
-    private static Integer executeThread(Callable<Integer> callable) {
+    private static Integer[] executeThread(Callable<Integer[]> callable) {
         ExecutorService executor = Executors.newFixedThreadPool(1);
-        Future<Integer> future = executor.submit(callable);
+        Future<Integer[]> future = executor.submit(callable);
         try {
             return future.get(SECONDS_BEFORE_TIMEOUT, TimeUnit.SECONDS);
         } catch (TimeoutException | InterruptedException | ExecutionException ignored) {
@@ -107,19 +114,19 @@ public class Benchmark {
             future.cancel(true);
             executor.shutdownNow();
         }
-        return SECONDS_BEFORE_TIMEOUT * 1000;
+        return new Integer[]{SECONDS_BEFORE_TIMEOUT * 1000, 0};
     }
 
     /**
      * Solve using DFS
      * @param puzzle Puzzle to solve
      */
-    private static int solveDFS(Puzzle puzzle) {
+    private static Integer[] solveDFS(Puzzle puzzle) {
         long startTime = System.nanoTime();
 
         Solver solver = new DepthFirstSolver();
 
-        solver.solve(puzzle, null);
+        boolean solved = solver.solve(puzzle, null);
 
         long stopTime = System.nanoTime();
 
@@ -127,7 +134,12 @@ public class Benchmark {
 
         timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
 
-        return (int) timeElapsed;
+        int numberOfMoves = 0;
+        if (solved) {
+            numberOfMoves = FileUtil.countLines("./results/puzzleDFS.txt");
+        }
+
+        return new Integer[] {(int) timeElapsed, numberOfMoves};
     }
 
     /**
@@ -136,7 +148,7 @@ public class Benchmark {
      * @param solver solver
      * @param heuristic heuristic
      */
-    private static int solve(Puzzle puzzle, Solver solver, Heuristic heuristic) {
+    private static Integer[] solve(Puzzle puzzle, Solver solver, Heuristic heuristic) {
         long startTime = System.nanoTime();
 
         solver.solve(puzzle, heuristic);
@@ -147,13 +159,15 @@ public class Benchmark {
 
         timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
 
-        return (int) timeElapsed;
+        int numberOfMoves = FileUtil.countLines("./results/puzzle"+solver.toString() + "-" + heuristic.filename()+".txt");
+
+        return new Integer[] {(int) timeElapsed, numberOfMoves};
     }
 
     /**
      * Wrapper for a Callable puzzle solving task
      */
-    static class PuzzleSolverCallable implements Callable<Integer> {
+    static class PuzzleSolverCallable implements Callable<Integer[]> {
         final Puzzle puzzle;
         final Solver solver;
         final Heuristic heuristic;
@@ -165,7 +179,7 @@ public class Benchmark {
         }
 
         @Override
-        public Integer call() {
+        public Integer[] call() {
             return Benchmark.solve(puzzle, solver, heuristic);
         }
     }
@@ -173,7 +187,7 @@ public class Benchmark {
     /**
      * Wrapper for a Callable puzzle DFS solving task
      */
-    static class PuzzleDFSSolverCallable implements Callable<Integer> {
+    static class PuzzleDFSSolverCallable implements Callable<Integer[]> {
         final Puzzle puzzle;
 
         PuzzleDFSSolverCallable(Puzzle puzzle) {
@@ -181,7 +195,7 @@ public class Benchmark {
         }
 
         @Override
-        public Integer call() {
+        public Integer[] call() {
             return Benchmark.solveDFS(puzzle);
         }
     }
