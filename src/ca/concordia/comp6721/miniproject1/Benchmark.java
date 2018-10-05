@@ -122,6 +122,10 @@ public class Benchmark {
      * @param puzzle Puzzle to solve
      */
     private static Integer[] solveDFS(Puzzle puzzle) {
+
+        // Delete old solutions
+        FileUtil.deleteFileName("puzzleDFS.txt");
+
         long startTime = System.nanoTime();
 
         Solver solver = new DepthFirstSolver();
@@ -134,6 +138,7 @@ public class Benchmark {
 
         timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
 
+        // Count the number of moves if the puzzle has been solved
         int numberOfMoves = 0;
         if (solved) {
             numberOfMoves = FileUtil.countLines("./results/puzzleDFS.txt");
@@ -149,6 +154,11 @@ public class Benchmark {
      * @param heuristic heuristic
      */
     private static Integer[] solve(Puzzle puzzle, Solver solver, Heuristic heuristic) {
+
+        // Delete old solutions
+        String filename = "puzzle"+solver.toString() + "-" + heuristic.filename()+".txt";
+        FileUtil.deleteFileName(filename);
+
         long startTime = System.nanoTime();
 
         solver.solve(puzzle, heuristic);
@@ -159,7 +169,7 @@ public class Benchmark {
 
         timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);
 
-        int numberOfMoves = FileUtil.countLines("./results/puzzle"+solver.toString() + "-" + heuristic.filename()+".txt");
+        int numberOfMoves = FileUtil.countLines("./results/"+filename);
 
         return new Integer[] {(int) timeElapsed, numberOfMoves};
     }

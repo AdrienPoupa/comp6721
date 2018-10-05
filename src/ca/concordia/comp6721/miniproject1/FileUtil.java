@@ -99,6 +99,20 @@ public class FileUtil {
     }
 
     /**
+     * Delete a specific file from the results folder
+     * Keep the .gitkeep
+     * @param filename filename
+     */
+    static void deleteFileName(String filename) {
+        File files = new File("results/");
+        for (File file: Objects.requireNonNull(files.listFiles())) {
+            if(file.getName().equals(filename)) {
+                file.delete();
+            }
+        }
+    }
+
+    /**
      * Count number of lines in a file
      * Credits: https://stackoverflow.com/a/453067
      * @param filename name of the file
