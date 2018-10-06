@@ -20,25 +20,12 @@ public class ManhattanDistanceHeuristic implements Heuristic {
 
         int manhattanDistance = 0;
 
-        int actualRowSize = ROW_SIZE - 1;
-        int actualColSize = COL_SIZE - 1;
-
         // Global counter for the two for loops, goes from 1 to PUZZLE_SIZE (12 for a 3*4 puzzle)
         int globalCounter = 1;
         for (int row = 0; row < ROW_SIZE; row++) {
             for (int col = 0; col < COL_SIZE; col++) {
 
-                // 0 has to be handled differently since we cannot do puzzle[row][col] != globalCounter
-                // If current cell is 0 and we know that it is misplaced, calculate the Manhattan distance
-                if (puzzle[row][col] == 0) {
-                    // Here we do not do row + 1 since ROW_SIZE also needs a - 1... so no need to apply anything else
-                    manhattanDistance += Math.abs(row - actualRowSize);
-                    manhattanDistance += Math.abs(col - actualColSize);
-                }
-
-                // If this is not the last iteration (has been handled before) and the value of the puzzle is not
-                // equal to the counter and not equal to 0: begin manhattan distance calculation
-                if (puzzle[row][col] != globalCounter) {
+                if (puzzle[row][col] != 0 && puzzle[row][col] != globalCounter) {
                     // In this cell, we should have the value globalCounter
                     // Let's find it in the puzzle
                     outerloop:
