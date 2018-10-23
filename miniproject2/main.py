@@ -56,12 +56,17 @@ def predict(dataset_number, name, algorithm):
         (y_validate_values != y_pred_gaussian).sum(),
         100 * (1 - (y_validate_values != y_pred_gaussian).sum() / numberOfValidation)
     ))
+    print(algorithm)
     print("\n")
 
 
 # Dataset 1
 
 # Gaussian Naive Bayes
+# TODO: tune algorithm
+# https://datascience.stackexchange.com/questions/36049/how-to-adjust-the-hyperparameters-of-mlp-classifier-to-get-more-perfect-performa
+# http://scikit-learn.org/stable/modules/grid_search.html
+# https://machinelearningmastery.com/how-to-tune-algorithm-parameters-with-scikit-learn/
 predict("1", "Gaussian Naive Bayes", GaussianNB())
 
 # Bernoulli Naive Bayes
