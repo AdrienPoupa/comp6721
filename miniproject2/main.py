@@ -14,7 +14,7 @@ import warnings
 warnings.warn = warn
 
 import pandas as pd
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import BernoulliNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
@@ -104,10 +104,10 @@ param_grid_dt = {'criterion': ["gini", "entropy"], 'splitter': ["best", "random"
 
 # Dataset 1
 
-# Without tuning: performance for the val set 49.81%
-print("Multinomial Naive Bayes")
-best_parameters = get_best_parameters("1", MultinomialNB(), param_grid_nb)
-predict("1", "nb", MultinomialNB(**best_parameters))
+# Without tuning: performance for the val set 59.92%
+print("Bernoulli Naive Bayes")
+best_parameters = get_best_parameters("1", BernoulliNB(), param_grid_nb)
+predict("1", "nb", BernoulliNB(**best_parameters))
 
 # Without tuning: performance for the val set 27.63%
 print("Decision Tree Classifier")
@@ -117,10 +117,10 @@ predict("1", "dt", DecisionTreeClassifier(**best_parameters))
 
 # Dataset 2
 
-# Without tuning: performance for the val set 78.60%
-print("Multinomial Naive Bayes")
-best_parameters = get_best_parameters("2", MultinomialNB(), param_grid_nb)
-predict("2", "nb", MultinomialNB(**best_parameters))
+# Without tuning: performance for the val set 80.05%
+print("Bernoulli Naive Bayes")
+best_parameters = get_best_parameters("2", BernoulliNB(), param_grid_nb)
+predict("2", "nb", BernoulliNB(**best_parameters))
 
 # Without tuning: performance for the val set 76.95%
 print("Decision Tree Classifier")
