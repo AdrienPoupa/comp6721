@@ -2,7 +2,6 @@
 # Also: https://hub.packtpub.com/implementing-3-naive-bayes-classifiers-in-scikit-learn/
 
 # Ignore warnings from sklearn: https://stackoverflow.com/a/33616192
-import numpy
 
 
 def warn(*args, **kwargs):
@@ -13,30 +12,49 @@ import warnings
 
 warnings.warn = warn
 
+import numpy
 import pandas as pd
+import pickle
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
 # Fix the random seed so that RandomizedSearchCV does not change: https://stackoverflow.com/a/49146736/10017187
 numpy.random.seed(0)
 
-def predict(dataset_number, filename, algorithm):
+
+def train(dataset_number, filename, classifier):
+    # Get X and y train
     X_train, y_train = get_csv_data("ds" + dataset_number + "/ds" + dataset_number + "Train.csv")
 
+    # Train classifier
+    classifier.fit(
+        X_train,
+        y_train
+    )
+
+    # Save model
+    with open("models/ds" + dataset_number + "Model-" + filename + ".pkl", 'wb') as file:
+        pickle.dump(classifier, file)
+
+    return classifier
+
+
+def load_classifier(dataset_number, filename):
+    with open("models/ds" + dataset_number + "Model-" + filename + ".pkl", 'rb') as file:
+        return pickle.load(file)
+
+
+def predict(dataset_number, filename, classifier):
+    # Get the X and y validate
     X_validate, y_validate = get_csv_data("ds" + dataset_number + "/ds" + dataset_number + "Val.csv")
 
     # Actual values as array
     y_validate_values = y_validate.values
 
-    # Train classifier
-    algorithm.fit(
-        X_train,
-        y_train
-    )
-
     # Predict the results
-    y_pred_gaussian = algorithm.predict(X_validate)
+    y_pred_gaussian = classifier.predict(X_validate)
 
     # Create a dataframe to write the result into a CSV
     csv_dataframe = pd.DataFrame(y_pred_gaussian)
@@ -47,12 +65,15 @@ def predict(dataset_number, filename, algorithm):
     # Actually write the file
     csv_dataframe.to_csv("results/ds" + dataset_number + "Val-" + filename + ".csv", header=None)
 
-    # print(algorithm)
+    # Compute accuracy
+    accuracy = accuracy_score(y_validate, y_pred_gaussian)
+
+    print(classifier)
     print("Number of mislabeled points out of a total {} points : {}, performance for the val set {:05.2f}%"
         .format(
         X_validate.shape[0],  # Counting number of lines of the validation file (1 line = 1 test)
         (y_validate_values != y_pred_gaussian).sum(),
-        round(algorithm.score(X_validate, y_validate) * 100, 2)
+        round(accuracy * 100, 2)
     ))
     print("\n")
 
@@ -76,7 +97,7 @@ def get_best_parameters(dataset_number, algorithm, param_grid):
     # Setup the parameters for the GridSearchCV, using the algorithm, the parameters
     # and a cross-validation splitting strategy of 5 (3 by default gives worse results)
     grid = GridSearchCV(estimator=algorithm, param_grid=param_grid, cv=5)
-    #grid = RandomizedSearchCV(estimator=algorithm, param_distributions=param_grid, cv=5)
+    # grid = RandomizedSearchCV(estimator=algorithm, param_distributions=param_grid, cv=5)
 
     # Fit GridSearchCV
     grid.fit(
@@ -107,22 +128,29 @@ param_grid_dt = {'criterion': ["gini", "entropy"], 'splitter': ["best", "random"
 # Without tuning: performance for the val set 59.92%
 print("Bernoulli Naive Bayes")
 best_parameters = get_best_parameters("1", BernoulliNB(), param_grid_nb)
-predict("1", "nb", BernoulliNB(**best_parameters))
+classifier = train("1", "nb", BernoulliNB(**best_parameters))
+# classifier = load_classifier("1", "nb")
+predict("1", "nb", classifier)
 
 # Without tuning: performance for the val set 27.63%
 print("Decision Tree Classifier")
 best_parameters = get_best_parameters("1", DecisionTreeClassifier(), param_grid_dt)
-predict("1", "dt", DecisionTreeClassifier(**best_parameters))
-
+classifier = train("1", "dt", DecisionTreeClassifier(**best_parameters))
+# classifier = load_classifier("1", "dt")
+predict("1", "dt", classifier)
 
 # Dataset 2
 
 # Without tuning: performance for the val set 80.05%
 print("Bernoulli Naive Bayes")
 best_parameters = get_best_parameters("2", BernoulliNB(), param_grid_nb)
-predict("2", "nb", BernoulliNB(**best_parameters))
+classifier = train("2", "nb", BernoulliNB(**best_parameters))
+# classifier = load_classifier("2", "nb")
+predict("2", "nb", classifier)
 
 # Without tuning: performance for the val set 76.95%
 print("Decision Tree Classifier")
 best_parameters = get_best_parameters("2", DecisionTreeClassifier(), param_grid_dt)
-predict("2", "dt", DecisionTreeClassifier(**best_parameters))
+classifier = train("2", "dt", DecisionTreeClassifier(**best_parameters))
+# classifier = load_classifier("2", "dt")
+predict("2", "dt", classifier)
