@@ -15,6 +15,7 @@ warnings.warn = warn
 import numpy
 import pandas as pd
 import pickle
+from sklearn.externals import joblib
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.naive_bayes import BernoulliNB
@@ -36,15 +37,13 @@ def train(dataset_number, filename, classifier):
     )
 
     # Save model
-    with open("models/ds" + dataset_number + "Model-" + filename + ".pkl", 'wb') as file:
-        pickle.dump(classifier, file)
+    joblib.dump(classifier, "models/ds" + dataset_number + "Model-" + filename + ".joblib")
 
     return classifier
 
 
 def load_classifier(dataset_number, filename):
-    with open("models/ds" + dataset_number + "Model-" + filename + ".pkl", 'rb') as file:
-        return pickle.load(file)
+    return joblib.load("models/ds" + dataset_number + "Model-" + filename + ".joblib")
 
 
 def predict(dataset_number, filename, classifier):
@@ -143,9 +142,9 @@ print("Dataset 1")
 # With tuning: {'alpha': 0.1, 'fit_prior': False}
 #                performance for the val set 60.12%
 print("Bernoulli Naive Bayes")
-# best_parameters = get_best_parameters("1", BernoulliNB(), param_grid_nb)
-# classifier = train("1", "nb", BernoulliNB(**best_parameters))
-classifier = load_classifier("1", "nb")
+best_parameters = get_best_parameters("1", BernoulliNB(), param_grid_nb)
+classifier = train("1", "nb", BernoulliNB(**best_parameters))
+# classifier = load_classifier("1", "nb")
 predict("1", "nb", classifier)
 
 # Without tuning: {'criterion': 'gini', 'presort': False, 'splitter': 'best'}
@@ -153,9 +152,9 @@ predict("1", "nb", classifier)
 # With tuning: {'criterion': 'gini', 'presort': False, 'splitter': 'best'}
 #                performance for the val set 29.77%
 print("Decision Tree Classifier")
-# best_parameters = get_best_parameters("1", DecisionTreeClassifier(), param_grid_dt)
-# classifier = train("1", "dt", DecisionTreeClassifier(**best_parameters))
-classifier = load_classifier("1", "dt")
+best_parameters = get_best_parameters("1", DecisionTreeClassifier(), param_grid_dt)
+classifier = train("1", "dt", DecisionTreeClassifier(**best_parameters))
+# classifier = load_classifier("1", "dt")
 predict("1", "dt", classifier)
 
 # Without tuning: {'activation': 'relu', 'learning_rate': 'constant', 'solver': 'adam'}
@@ -163,9 +162,9 @@ predict("1", "dt", classifier)
 # With tuning: {'activation': 'logistic', 'learning_rate': 'invscaling', 'solver': 'adam'}
 #                performance for the val set 64.98%
 print("MLP Classifier")
-# best_parameters = get_best_parameters("1", MLPClassifier(), param_grid_mlp)
-# classifier = train("1", "mlp", MLPClassifier(**best_parameters))
-classifier = load_classifier("1", "mlp")
+best_parameters = get_best_parameters("1", MLPClassifier(), param_grid_mlp)
+classifier = train("1", "mlp", MLPClassifier(**best_parameters))
+# classifier = load_classifier("1", "mlp")
 predict("1", "mlp", classifier)
 
 #
@@ -178,9 +177,9 @@ print("Dataset 2")
 # With tuning: {'alpha': 0.0, 'fit_prior': True}
 #                performance for the val set 80.35%
 print("Bernoulli Naive Bayes")
-# best_parameters = get_best_parameters("2", BernoulliNB(), param_grid_nb)
-# classifier = train("2", "nb", BernoulliNB(**best_parameters))
-classifier = load_classifier("2", "nb")
+best_parameters = get_best_parameters("2", BernoulliNB(), param_grid_nb)
+classifier = train("2", "nb", BernoulliNB(**best_parameters))
+# classifier = load_classifier("2", "nb")
 predict("2", "nb", classifier)
 
 # Without tuning: {'criterion': 'gini', 'presort': False, 'splitter': 'best'}
@@ -188,9 +187,9 @@ predict("2", "nb", classifier)
 # With tuning: {'criterion': 'gini', 'presort': False, 'splitter': 'random'}
 #                performance for the val set 77.05%
 print("Decision Tree Classifier")
-# best_parameters = get_best_parameters("2", DecisionTreeClassifier(), param_grid_dt)
-# classifier = train("2", "dt", DecisionTreeClassifier(**best_parameters))
-classifier = load_classifier("2", "dt")
+best_parameters = get_best_parameters("2", DecisionTreeClassifier(), param_grid_dt)
+classifier = train("2", "dt", DecisionTreeClassifier(**best_parameters))
+# classifier = load_classifier("2", "dt")
 predict("2", "dt", classifier)
 
 # Without tuning: {'activation': 'relu', 'learning_rate': 'constant', 'solver': 'adam'}
@@ -198,7 +197,7 @@ predict("2", "dt", classifier)
 # With tuning: {'activation': 'logistic', 'learning_rate': 'constant', 'solver': 'adam'}
 #                performance for the val set 90.55%
 print("MLP Classifier")
-# best_parameters = get_best_parameters("1", MLPClassifier(), param_grid_mlp)
-# classifier = train("2", "mlp", MLPClassifier(**best_parameters))
-classifier = load_classifier("2", "mlp")
+best_parameters = get_best_parameters("1", MLPClassifier(), param_grid_mlp)
+classifier = train("2", "mlp", MLPClassifier(**best_parameters))
+# classifier = load_classifier("2", "mlp")
 predict("2", "mlp", classifier)
