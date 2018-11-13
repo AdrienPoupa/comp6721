@@ -169,9 +169,10 @@ predict("1", "dt", "Test", classifier)
 #                performance for the val set 64.98%
 print("MLP Classifier")
 # best_parameters = get_best_parameters("1", MLPClassifier(), param_grid_mlp)
-# classifier = train("1", "mlp", MLPClassifier(**best_parameters))
-classifier = load_classifier("1", "mlp")
-predict("1", "mlp", "Test", classifier)
+# classifier = train("1", "3", MLPClassifier(**best_parameters))
+classifier = load_classifier("1", "3")
+predict("1", "3", "Val", classifier)
+predict("1", "3", "Test", classifier)
 
 #
 # Dataset 2
@@ -206,7 +207,7 @@ predict("2", "dt", "Test", classifier)
 #                performance for the val set 90.55%
 print("MLP Classifier")
 # best_parameters = get_best_parameters("1", MLPClassifier(), param_grid_mlp)
-# classifier = train("2", "mlp", MLPClassifier(**best_parameters))
-classifier = load_classifier("2", "mlp")
-predict("2", "mlp", "Val", classifier)
-predict("2", "mlp", "Test", classifier)
+# classifier = train("2", "3", MLPClassifier(**best_parameters))
+classifier = load_classifier("2", "3")
+predict("2", "3", "Val", classifier)
+predict("2", "3", "Test", classifier)
