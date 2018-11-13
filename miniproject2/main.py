@@ -14,7 +14,6 @@ warnings.warn = warn
 
 import numpy
 import pandas as pd
-import pickle
 from sklearn.externals import joblib
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
@@ -46,12 +45,16 @@ def load_classifier(dataset_number, filename):
     return joblib.load("models/ds" + dataset_number + "Model-" + filename + ".joblib")
 
 
-def predict(dataset_number, filename, classifier):
-    # Get the X and y validate
-    X_validate, y_validate = get_csv_data("ds" + dataset_number + "/ds" + dataset_number + "Val.csv")
+def predict(dataset_number, filename, type, classifier):
+    if type == 'Val':
+        # Get the X and y validate
+        X_validate, y_validate = get_csv_data("ds" + dataset_number + "/ds" + dataset_number + type + ".csv")
 
-    # Actual values as array
-    y_validate_values = y_validate.values
+        # Actual values as array
+        y_validate_values = y_validate.values
+    else:
+        X_validate = pd.read_csv("dataset/ds" + dataset_number + "/ds" + dataset_number + type + ".csv",
+                                 header=None, sep=',')
 
     # Predict the results
     y_pred_gaussian = classifier.predict(X_validate)
@@ -63,19 +66,20 @@ def predict(dataset_number, filename, classifier):
     csv_dataframe.index = csv_dataframe.index + 1
 
     # Actually write the file
-    csv_dataframe.to_csv("results/ds" + dataset_number + "Val-" + filename + ".csv", header=None)
+    csv_dataframe.to_csv("results/ds" + dataset_number + type + "-" + filename + ".csv", header=None)
 
-    # Compute accuracy
-    accuracy = accuracy_score(y_validate, y_pred_gaussian)
+    if type == 'Val':
+        # Compute accuracy
+        accuracy = accuracy_score(y_validate, y_pred_gaussian)
 
-    # print(classifier)
-    print("Number of mislabeled points out of a total {} points : {}, performance for the val set {:05.2f}%"
-        .format(
-        X_validate.shape[0],  # Counting number of lines of the validation file (1 line = 1 test)
-        (y_validate_values != y_pred_gaussian).sum(),
-        round(accuracy * 100, 2)
-    ))
-    print("\n")
+        # print(classifier)
+        print("Number of mislabeled points out of a total {} points : {}, performance for the val set {:05.2f}%"
+            .format(
+            X_validate.shape[0],  # Counting number of lines of the validation file (1 line = 1 test)
+            (y_validate_values != y_pred_gaussian).sum(),
+            round(accuracy * 100, 2)
+        ))
+        print("\n")
 
 
 def get_csv_data(filename):
@@ -142,30 +146,32 @@ print("Dataset 1")
 # With tuning: {'alpha': 0.1, 'fit_prior': False}
 #                performance for the val set 60.12%
 print("Bernoulli Naive Bayes")
-best_parameters = get_best_parameters("1", BernoulliNB(), param_grid_nb)
-classifier = train("1", "nb", BernoulliNB(**best_parameters))
-# classifier = load_classifier("1", "nb")
-predict("1", "nb", classifier)
+# best_parameters = get_best_parameters("1", BernoulliNB(), param_grid_nb)
+# classifier = train("1", "nb", BernoulliNB(**best_parameters))
+classifier = load_classifier("1", "nb")
+predict("1", "nb", "Val", classifier)
+predict("1", "nb", "Test", classifier)
 
 # Without tuning: {'criterion': 'gini', 'presort': False, 'splitter': 'best'}
 #                 performance for the val set 27.63%
 # With tuning: {'criterion': 'gini', 'presort': False, 'splitter': 'best'}
 #                performance for the val set 29.77%
 print("Decision Tree Classifier")
-best_parameters = get_best_parameters("1", DecisionTreeClassifier(), param_grid_dt)
-classifier = train("1", "dt", DecisionTreeClassifier(**best_parameters))
-# classifier = load_classifier("1", "dt")
-predict("1", "dt", classifier)
+# best_parameters = get_best_parameters("1", DecisionTreeClassifier(), param_grid_dt)
+# classifier = train("1", "dt", DecisionTreeClassifier(**best_parameters))
+classifier = load_classifier("1", "dt")
+predict("1", "dt", "Val", classifier)
+predict("1", "dt", "Test", classifier)
 
 # Without tuning: {'activation': 'relu', 'learning_rate': 'constant', 'solver': 'adam'}
 #                 performance for the val set 63.42%
 # With tuning: {'activation': 'logistic', 'learning_rate': 'invscaling', 'solver': 'adam'}
 #                performance for the val set 64.98%
 print("MLP Classifier")
-best_parameters = get_best_parameters("1", MLPClassifier(), param_grid_mlp)
-classifier = train("1", "mlp", MLPClassifier(**best_parameters))
-# classifier = load_classifier("1", "mlp")
-predict("1", "mlp", classifier)
+# best_parameters = get_best_parameters("1", MLPClassifier(), param_grid_mlp)
+# classifier = train("1", "mlp", MLPClassifier(**best_parameters))
+classifier = load_classifier("1", "mlp")
+predict("1", "mlp", "Test", classifier)
 
 #
 # Dataset 2
@@ -177,27 +183,30 @@ print("Dataset 2")
 # With tuning: {'alpha': 0.0, 'fit_prior': True}
 #                performance for the val set 80.35%
 print("Bernoulli Naive Bayes")
-best_parameters = get_best_parameters("2", BernoulliNB(), param_grid_nb)
-classifier = train("2", "nb", BernoulliNB(**best_parameters))
-# classifier = load_classifier("2", "nb")
-predict("2", "nb", classifier)
+# best_parameters = get_best_parameters("2", BernoulliNB(), param_grid_nb)
+# classifier = train("2", "nb", BernoulliNB(**best_parameters))
+classifier = load_classifier("2", "nb")
+predict("2", "nb", "Val", classifier)
+predict("2", "nb", "Test", classifier)
 
 # Without tuning: {'criterion': 'gini', 'presort': False, 'splitter': 'best'}
 #                 performance for the val set 76.95%
 # With tuning: {'criterion': 'gini', 'presort': False, 'splitter': 'random'}
 #                performance for the val set 77.05%
 print("Decision Tree Classifier")
-best_parameters = get_best_parameters("2", DecisionTreeClassifier(), param_grid_dt)
-classifier = train("2", "dt", DecisionTreeClassifier(**best_parameters))
-# classifier = load_classifier("2", "dt")
-predict("2", "dt", classifier)
+# best_parameters = get_best_parameters("2", DecisionTreeClassifier(), param_grid_dt)
+# classifier = train("2", "dt", DecisionTreeClassifier(**best_parameters))
+classifier = load_classifier("2", "dt")
+predict("2", "dt", "Val", classifier)
+predict("2", "dt", "Test", classifier)
 
 # Without tuning: {'activation': 'relu', 'learning_rate': 'constant', 'solver': 'adam'}
 #                 performance for the val set 88.40%
 # With tuning: {'activation': 'logistic', 'learning_rate': 'constant', 'solver': 'adam'}
 #                performance for the val set 90.55%
 print("MLP Classifier")
-best_parameters = get_best_parameters("1", MLPClassifier(), param_grid_mlp)
-classifier = train("2", "mlp", MLPClassifier(**best_parameters))
-# classifier = load_classifier("2", "mlp")
-predict("2", "mlp", classifier)
+# best_parameters = get_best_parameters("1", MLPClassifier(), param_grid_mlp)
+# classifier = train("2", "mlp", MLPClassifier(**best_parameters))
+classifier = load_classifier("2", "mlp")
+predict("2", "mlp", "Val", classifier)
+predict("2", "mlp", "Test", classifier)
