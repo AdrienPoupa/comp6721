@@ -102,13 +102,9 @@ public class Unigram extends AbstractNgram {
             int i = 1;
             StringBuilder output;
             for(String line: lines) {
-
-                // Add P(language)
-                float totalNumberOfChars = numberOfChar.get(English.class) + numberOfChar.get(French.class);
-
                 scoreMap = new HashMap<>();
-                scoreMap.put(English.class, Math.log10(numberOfChar.get(English.class) / totalNumberOfChars));
-                scoreMap.put(French.class, Math.log10(numberOfChar.get(French.class) / totalNumberOfChars));
+                scoreMap.put(English.class, 0.0);
+                scoreMap.put(French.class, 0.0);
 
                 output = new StringBuilder();
                 output.append(line).append("\n").append("\n");

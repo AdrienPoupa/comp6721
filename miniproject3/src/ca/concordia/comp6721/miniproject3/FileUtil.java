@@ -102,9 +102,9 @@ public class FileUtil {
      * Read a file
      * Credits: https://stackoverflow.com/a/326440
      * @param path path of the file
-     * @param encoding enconding of the file
+     * @param encoding encoding of the file
      * @return String content of the file
-     * @throws IOException
+     * @throws IOException exception thrown if file cannot be read
      */
     public static String readFile(String path, Charset encoding)
             throws IOException
