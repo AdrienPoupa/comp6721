@@ -16,6 +16,7 @@ public class Unigram extends AbstractNgram {
 
     private HashMap<Class<? extends Language>, HashMap<Character, Float>> probabilityMap;
     private HashMap<Class<? extends Language>, HashMap<Character, Integer>> langMap;
+    private Map<Class<? extends Language>, Long> numberOfChar;
 
     public Unigram() {
         super();
@@ -26,7 +27,7 @@ public class Unigram extends AbstractNgram {
 
     @Override
     public void train() {
-        Map<Class<? extends Language>, Long> numberOfChar = new HashMap<>();
+        numberOfChar = new HashMap<>();
 
         trainingFiles.forEach(((language, filename) -> {
             try {
@@ -102,13 +103,17 @@ public class Unigram extends AbstractNgram {
             StringBuilder output;
             for(String line: lines) {
 
+                // Add P(language)
+                float totalNumberOfChars = numberOfChar.get(English.class) + numberOfChar.get(French.class);
+
                 scoreMap = new HashMap<>();
-                scoreMap.put(English.class, 0.0);
-                scoreMap.put(French.class, 0.0);
+                scoreMap.put(English.class, Math.log10(numberOfChar.get(English.class) / totalNumberOfChars));
+                scoreMap.put(French.class, Math.log10(numberOfChar.get(French.class) / totalNumberOfChars));
 
                 output = new StringBuilder();
                 output.append(line).append("\n").append("\n");
 
+                // Clean the sentence
                 String cleanLine = line.replaceAll("[^a-zA-Z]+", "").toLowerCase();
 
                 output.append("UNIGRAM MODEL:").append("\n");
