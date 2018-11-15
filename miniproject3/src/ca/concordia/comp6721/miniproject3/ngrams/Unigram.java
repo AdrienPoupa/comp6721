@@ -10,8 +10,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Unigram extends AbstractNgram {
 
@@ -90,5 +89,61 @@ public class Unigram extends AbstractNgram {
                 e.printStackTrace();
             }
         });
+    }
+
+    @Override
+    public void predict() {
+        try {
+            List<String> lines = FileUtil.readLines(new File("input/sentences.txt"));
+
+            HashMap<Class<? extends Language>, Double> scoreMap;
+
+            int i = 1;
+            StringBuilder output;
+            for(String line: lines) {
+
+                scoreMap = new HashMap<>();
+                scoreMap.put(English.class, 0.0);
+                scoreMap.put(French.class, 0.0);
+
+                output = new StringBuilder();
+                output.append(line).append("\n").append("\n");
+
+                String cleanLine = line.replaceAll("[^a-zA-Z]+", "").toLowerCase();
+
+                output.append("UNIGRAM MODEL:").append("\n");
+                for (char character: cleanLine.toCharArray()) {
+                    output.append("\n").append("UNIGRAM: ").append(character).append("\n");
+                    StringBuilder finalOut = output;
+
+                    HashMap<Class<? extends Language>, Double> finalScoreMap = scoreMap;
+                    probabilityMap.forEach((language, alphabetMap) -> {
+                        try {
+                            float probability = probabilityMap.get(language).get(character);
+                            double score =+ finalScoreMap.get(language) + Math.log10(probability);
+                            finalScoreMap.put(language, score);
+
+                            finalOut.append(language.newInstance().toString().toUpperCase())
+                                    .append(": P(").append(character).append(") = ")
+                                    .append(probability)
+                                    .append(" ==> log prob of sentence so far: ").append(score).append("\n");
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+
+                output.append("\n");
+
+                Class<? extends Language> mostProbableLanguage = Collections.max(scoreMap.entrySet(), Comparator.comparingDouble(Map.Entry::getValue)).getKey();
+                output.append("According to the unigram model, the sentence is in ").append(mostProbableLanguage.newInstance().toString());
+
+                FileUtil.writeInFile("out" + i + ".txt", output.toString());
+
+                i++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

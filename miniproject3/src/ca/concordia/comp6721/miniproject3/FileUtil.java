@@ -5,6 +5,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -109,5 +111,26 @@ public class FileUtil {
     {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded, encoding);
+    }
+
+    /**
+     * Read a file, return a list of string for each line
+     * Credits: http://www.java2s.com/Tutorial/Java/0180__File/ReadLinesreadfiletolistofstrings.htm
+     * @param file path of the file
+     * @return list of strings
+     * @throws Exception exception
+     */
+    public static List<String> readLines(File file) throws Exception {
+        if (!file.exists()) {
+            return new ArrayList<>();
+        }
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        List<String> results = new ArrayList<>();
+        String line = reader.readLine();
+        while (line != null) {
+            results.add(line);
+            line = reader.readLine();
+        }
+        return results;
     }
 }

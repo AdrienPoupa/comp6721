@@ -11,4 +11,9 @@ public class Bigram extends AbstractNgram {
     public void output() {
 
     }
+
+    @Override
+    public void predict() {
+
+    }
 }

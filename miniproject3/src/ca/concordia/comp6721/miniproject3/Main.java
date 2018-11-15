@@ -20,5 +20,6 @@ public class Main {
         Ngram ngram = new Unigram();
         ngram.train();
         ngram.output();
+        ngram.predict();
     }
 }
