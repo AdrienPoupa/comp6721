@@ -59,8 +59,10 @@ public class Unigram extends AbstractNgram {
 
         langMap.forEach((language, alphabetMap) -> {
             long totalChar = numberOfChar.get(language);
-            alphabetMap.forEach((character, integer) -> {
-                float probability = (float)integer / (float)totalChar;
+            alphabetMap.forEach((character, numberOfOccurences) -> {
+                // Probability of the character
+                // 0.5-smoothing: +0.5 on the numerator, +26 (number of different output) * 0.5 on the denominator
+                float probability = (float)(numberOfOccurences + 0.5) / (float)(totalChar + 26 * 0.5);
                 HashMap<Character, Float> alphabetMap2 = probabilityMap.get(language);
                 alphabetMap2.put(character, probability);
             });
