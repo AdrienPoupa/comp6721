@@ -1,6 +1,10 @@
 package ca.concordia.comp6721.miniproject3;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.Normalizer;
 import java.util.Objects;
 
 /**
@@ -13,8 +17,8 @@ public class FileUtil {
      * @param content content to add
      * @throws IOException if we cannot access the file
      */
-    static void writeInFile(String filename, String content) throws IOException {
-        try (FileWriter fw = new FileWriter("miniproject1/results/"+filename, true);
+    public static void writeInFile(String filename, String content) throws IOException {
+        try (FileWriter fw = new FileWriter("output/"+filename, true);
              BufferedWriter bw = new BufferedWriter(fw);
              PrintWriter out = new PrintWriter(bw)) {
             out.println(content);
@@ -25,8 +29,8 @@ public class FileUtil {
      * Delete files from the results folder
      * Keep the .gitkeep
      */
-    static void deleteFiles() {
-        File files = new File("miniproject1/results/");
+    public static void deleteFiles() {
+        File files = new File("output/");
         for (File file: Objects.requireNonNull(files.listFiles())) {
             if(!file.getName().equals(".gitkeep")) {
                 file.delete();
@@ -40,7 +44,7 @@ public class FileUtil {
      * @param filename filename
      */
     static void deleteFileName(String filename) {
-        File files = new File("miniproject1/results/");
+        File files = new File("output/");
         for (File file: Objects.requireNonNull(files.listFiles())) {
             if(file.getName().equals(filename)) {
                 file.delete();
@@ -90,5 +94,20 @@ public class FileUtil {
             e.printStackTrace();
             return 0;
         }
+    }
+
+    /**
+     * Read a file
+     * Credits: https://stackoverflow.com/a/326440
+     * @param path path of the file
+     * @param encoding enconding of the file
+     * @return String content of the file
+     * @throws IOException
+     */
+    public static String readFile(String path, Charset encoding)
+            throws IOException
+    {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, encoding);
     }
 }
