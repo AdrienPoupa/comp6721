@@ -133,4 +133,14 @@ public class FileUtil {
         }
         return results;
     }
+
+    /**
+     * Clean a string by removing everything that is not characters a-zA-Z then lowercase it
+     * @param text text to clean
+     * @return text cleaned
+     */
+    public static String tokenize(String text) {
+        return text.replaceAll("[^a-zA-Z]+", "")
+                .toLowerCase();
+    }
 }
