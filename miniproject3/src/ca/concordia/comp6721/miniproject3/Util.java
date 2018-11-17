@@ -5,14 +5,12 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A Util class to handle formatting and writing the results in a text file
  */
-public class FileUtil {
+public class Util {
     /**
      * Append String in a file
      * @param filename name of the file
@@ -37,64 +35,6 @@ public class FileUtil {
             if(!file.getName().equals(".gitkeep")) {
                 file.delete();
             }
-        }
-    }
-
-    /**
-     * Delete a specific file from the results folder
-     * Keep the .gitkeep
-     * @param filename filename
-     */
-    static void deleteFileName(String filename) {
-        File files = new File("output/");
-        for (File file: Objects.requireNonNull(files.listFiles())) {
-            if(file.getName().equals(filename)) {
-                file.delete();
-            }
-        }
-    }
-
-    /**
-     * Count number of lines in a file
-     * Credits: https://stackoverflow.com/a/453067
-     * @param filename name of the file
-     * @return int number of lines
-     */
-    static int countLines(String filename) {
-        try (InputStream is = new BufferedInputStream(new FileInputStream(filename))) {
-            byte[] c = new byte[1024];
-
-            int readChars = is.read(c);
-            if (readChars == -1) {
-                // bail out if nothing to read
-                return 0;
-            }
-
-            // make it easy for the optimizer to tune this loop
-            int count = 0;
-            while (readChars == 1024) {
-                for (int i = 0; i < 1024; ) {
-                    if (c[i++] == '\n') {
-                        ++count;
-                    }
-                }
-                readChars = is.read(c);
-            }
-
-            // count remaining characters
-            while (readChars != -1) {
-                for (int i = 0; i < readChars; ++i) {
-                    if (c[i] == '\n') {
-                        ++count;
-                    }
-                }
-                readChars = is.read(c);
-            }
-
-            return count == 0 ? 1 : count;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return 0;
         }
     }
 
@@ -139,8 +79,42 @@ public class FileUtil {
      * @param text text to clean
      * @return text cleaned
      */
-    public static String tokenize(String text) {
+    public static String cleanString(String text) {
         return text.replaceAll("[^a-zA-Z]+", "")
                 .toLowerCase();
+    }
+
+    /**
+     * Split a string every n character
+     * @param text string to split
+     * @return list of strings
+     */
+    public static List<String> explodeString(String text) {
+        List<String> parts = new ArrayList<>();
+        char[] charTable = text.toCharArray();
+        char previousCharacter = charTable[0];
+        char [] subChar = Arrays.copyOfRange(charTable, 1, charTable.length);
+        for (char character : subChar) {
+            parts.add(previousCharacter+String.valueOf(character));
+            previousCharacter = character;
+        }
+        return parts;
+    }
+
+    /**
+     * Count the number of letters and store them in a map
+     * Credits: https://www.quora.com/How-can-I-write-a-Java-program-to-find-each-occurrence-of-a-character-in-a-string
+     * -which-is-given-as-an-input-from-a-console-without-using-any-built-in-functions
+     * @param text text in which to count
+     */
+    public static void countAlphabet(String text, HashMap<Character, Integer> map) {
+        for (char ch : text.toCharArray()) {
+            if (map.containsKey(ch)) {
+                int val = map.get(ch);
+                map.put(ch, val + 1);
+            } else {
+                map.put(ch, 1);
+            }
+        }
     }
 }

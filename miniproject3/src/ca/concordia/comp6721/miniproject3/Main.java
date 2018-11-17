@@ -1,5 +1,6 @@
 package ca.concordia.comp6721.miniproject3;
 
+import ca.concordia.comp6721.miniproject3.ngrams.Bigram;
 import ca.concordia.comp6721.miniproject3.ngrams.Ngram;
 import ca.concordia.comp6721.miniproject3.ngrams.Unigram;
 
@@ -15,11 +16,20 @@ public class Main {
         System.out.println("COMP6721 Mini-project 3");
 
         // Delete old files
-        FileUtil.deleteFiles();
+        Util.deleteFiles();
 
+        System.out.println("Running the Unigram model...");
         Ngram ngram = new Unigram();
         ngram.train();
         ngram.output();
         ngram.predict();
+
+        System.out.println("Running the Bigram model...");
+        ngram = new Bigram();
+        ngram.train();
+        ngram.output();
+        ngram.predict();
+
+        System.out.println("Output files generated");
     }
 }
