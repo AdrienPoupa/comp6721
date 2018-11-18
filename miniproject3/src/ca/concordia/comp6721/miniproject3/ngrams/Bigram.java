@@ -162,21 +162,22 @@ public class Bigram extends AbstractNgram {
                     finalOut.append("\n").append("BIGRAM: ").append(previousChar).append(currentChar).append("\n");
                     trainingFiles.forEach(((language, filename) -> {
                         HashMap<String, HashMap<String, Float>> probabilitySubMap = probabilityMap.get(language);
+                        float probability = Float.MIN_VALUE;
                         if (probabilitySubMap.containsKey(currentChar)) {
                             HashMap<String, Float> probabilitySubSubMap = probabilitySubMap.get(currentChar);
                             if (probabilitySubSubMap.containsKey(previousChar)) {
-                                float probability = probabilitySubSubMap.get(previousChar);
-                                double score =+ finalScoreMap2.get(language) + Math.log10(probability);
-                                finalScoreMap2.put(language, score);
-
-                                try {
-                                    finalOut.append(language.newInstance().toString().toUpperCase())
-                                            .append(": P(").append(currentChar).append("|").append(previousChar).append(") = ").append(probability)
-                                            .append(" ==> log prob of sentence so far: ").append(score).append("\n");
-                                } catch (InstantiationException | IllegalAccessException e) {
-                                    e.printStackTrace();
-                                }
+                                probability = probabilitySubSubMap.get(previousChar);
                             }
+                        }
+                        double score =+ finalScoreMap2.get(language) + Math.log10(probability);
+                        finalScoreMap2.put(language, score);
+
+                        try {
+                            finalOut.append(language.newInstance().toString().toUpperCase())
+                                    .append(": P(").append(currentChar).append("|").append(previousChar).append(") = ").append(probability)
+                                    .append(" ==> log prob of sentence so far: ").append(score).append("\n");
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            e.printStackTrace();
                         }
                     }));
                 });

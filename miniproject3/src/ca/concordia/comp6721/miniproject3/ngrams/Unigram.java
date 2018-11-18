@@ -105,15 +105,16 @@ public class Unigram extends AbstractNgram {
                     HashMap<Class<? extends Language>, Double> finalScoreMap2 = scoreMap;
                     probabilityMap.forEach((language, alphabetMap) -> {
                         try {
+                            float probability = Float.MIN_VALUE;
                             if (probabilityMap.get(language).containsKey(character)) {
-                                float probability = probabilityMap.get(language).get(character);
-                                double score =+ finalScoreMap2.get(language) + Math.log10(probability);
-                                finalScoreMap2.put(language, score);
-
-                                finalOut.append(language.newInstance().toString().toUpperCase())
-                                        .append(": P(").append(character).append(") = ").append(probability)
-                                        .append(" ==> log prob of sentence so far: ").append(score).append("\n");
+                                probability = probabilityMap.get(language).get(character);
                             }
+                            double score =+ finalScoreMap2.get(language) + Math.log10(probability);
+                            finalScoreMap2.put(language, score);
+
+                            finalOut.append(language.newInstance().toString().toUpperCase())
+                                    .append(": P(").append(character).append(") = ").append(probability)
+                                    .append(" ==> log prob of sentence so far: ").append(score).append("\n");
                         } catch (InstantiationException | IllegalAccessException e) {
                             e.printStackTrace();
                         }

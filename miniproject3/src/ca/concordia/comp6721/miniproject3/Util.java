@@ -80,8 +80,22 @@ public class Util {
      * @return text cleaned
      */
     public static String cleanString(String text) {
+        text = Util.stripAccents(text);
         return text.replaceAll("[^a-zA-Z]+", "")
                 .toLowerCase();
+    }
+
+    /**
+     * Remove accents from a string
+     * Credits: https://stackoverflow.com/a/15190787
+     * @param s String to clean
+     * @return String cleaned
+     */
+    public static String stripAccents(String s)
+    {
+        s = Normalizer.normalize(s, Normalizer.Form.NFD);
+        s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+        return s;
     }
 
     /**
