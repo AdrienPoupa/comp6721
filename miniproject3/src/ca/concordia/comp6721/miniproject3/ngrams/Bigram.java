@@ -1,5 +1,6 @@
 package ca.concordia.comp6721.miniproject3.ngrams;
 
+import ca.concordia.comp6721.miniproject3.Sentence;
 import ca.concordia.comp6721.miniproject3.Util;
 import ca.concordia.comp6721.miniproject3.languages.Language;
 
@@ -128,7 +129,7 @@ public class Bigram extends AbstractNgram {
     }
 
     @Override
-    public void predict() {
+    public void predict(List<Sentence> sentences) {
         try {
             List<String> lines = Util.readLines(new File("input/sentences.txt"));
 
@@ -147,6 +148,9 @@ public class Bigram extends AbstractNgram {
 
                 // Clean the sentence
                 String cleanLine = Util.cleanString(line);
+
+                // Get the sentence from the ArrayList
+                Sentence sentence = sentences.get(i - 1);
 
                 List<String> bigrams = Util.explodeString(cleanLine);
 
@@ -184,9 +188,14 @@ public class Bigram extends AbstractNgram {
                 output.append("\n");
 
                 Class<? extends Language> mostProbableLanguage = Collections.max(scoreMap.entrySet(), Comparator.comparingDouble(Map.Entry::getValue)).getKey();
-                output.append("According to the bigram model, the sentence is in ").append(mostProbableLanguage.newInstance().toString());
+                Language languageInstance = mostProbableLanguage.newInstance();
+                output.append("According to the bigram model, the sentence is in ").append(languageInstance.toString());
 
                 Util.writeInFile("out" + i + ".txt", output.toString());
+
+                // Add the unigram result to the sentence array list
+                sentence.setBigramDetectedLanguage(languageInstance);
+                sentences.set(i - 1, sentence);
 
                 i++;
             }

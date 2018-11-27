@@ -1,11 +1,14 @@
 package ca.concordia.comp6721.miniproject3.ngrams;
 
+import ca.concordia.comp6721.miniproject3.Sentence;
 import ca.concordia.comp6721.miniproject3.Util;
 import ca.concordia.comp6721.miniproject3.languages.Language;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
@@ -76,7 +79,7 @@ public class Unigram extends AbstractNgram {
     }
 
     @Override
-    public void predict() {
+    public void predict(List<Sentence> sentences) {
         try {
             List<String> lines = Util.readLines(new File("input/sentences.txt"));
 
@@ -93,6 +96,9 @@ public class Unigram extends AbstractNgram {
                 // Start creating the StringBuilder that will be written into the output file
                 output = new StringBuilder();
                 output.append(line).append("\n").append("\n");
+
+                // Create the sentence
+                Sentence sentence = new Sentence(line);
 
                 // Clean the sentence
                 String cleanLine = Util.cleanString(line);
@@ -124,11 +130,22 @@ public class Unigram extends AbstractNgram {
                 output.append("\n");
 
                 Class<? extends Language> mostProbableLanguage = Collections.max(scoreMap.entrySet(), Comparator.comparingDouble(Map.Entry::getValue)).getKey();
-                output.append("According to the unigram model, the sentence is in ").append(mostProbableLanguage.newInstance().toString());
+                Language languageInstance = mostProbableLanguage.newInstance();
+                output.append("According to the unigram model, the sentence is in ").append(languageInstance.toString());
 
                 output.append("\n----------------");
 
                 Util.writeInFile("out" + i + ".txt", output.toString());
+
+                // Get expected language as string
+                String expectedLanguage = Files.readAllLines(Paths.get("input/sentencesLanguages.txt")).get(i - 1);
+                // Convert it to the class and add it
+                Class<?> classType = Class.forName("ca.concordia.comp6721.miniproject3.languages."+expectedLanguage);
+                sentence.setActualLanguage((Language) classType.newInstance());
+
+                // Add the unigram result to the sentence array list
+                sentence.setUnigramDetectedLanguage(languageInstance);
+                sentences.add(sentence);
 
                 i++;
             }
