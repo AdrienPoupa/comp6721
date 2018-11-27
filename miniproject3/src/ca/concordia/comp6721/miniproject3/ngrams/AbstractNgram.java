@@ -1,9 +1,6 @@
 package ca.concordia.comp6721.miniproject3.ngrams;
 
-import ca.concordia.comp6721.miniproject3.languages.English;
-import ca.concordia.comp6721.miniproject3.languages.French;
-import ca.concordia.comp6721.miniproject3.languages.Language;
-import ca.concordia.comp6721.miniproject3.languages.Spanish;
+import ca.concordia.comp6721.miniproject3.languages.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +15,8 @@ abstract class AbstractNgram implements Ngram {
         trainingFiles.put(English.class, "trainEN.txt");
         trainingFiles.put(French.class, "trainFR.txt");
         trainingFiles.put(Spanish.class, "trainES.txt");
+        // Uncomment the following line to enable italian detection
+        //trainingFiles.put(Italian.class, "trainIT.txt");
         langMap = new HashMap<>();
         trainingFiles.forEach(((language, filename) -> langMap.put(language, new HashMap<>())));
     }
