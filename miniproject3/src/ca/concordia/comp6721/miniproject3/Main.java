@@ -48,26 +48,28 @@ public class Main {
         for(Sentence sentence: sentences) {
 
             String unigramResult = "✕";
-            if (sentence.getActualLanguage().toString().equals(sentence.getUnigramDetectedLanguage().toString())) {
+            if (sentence.getLanguage().toString().equals(sentence.getUnigramDetectedLanguage().toString())) {
                 unigramResult = "✓";
                 unigramCorrect++;
             }
 
             String bigramResult = "✕";
-            if (sentence.getActualLanguage().toString().equals(sentence.getBigramDetectedLanguage().toString())) {
+            if (sentence.getLanguage().toString().equals(sentence.getBigramDetectedLanguage().toString())) {
                 bigramResult = "✓";
                 bigramCorrect++;
             }
 
-            commandLineTable.addRow(String.valueOf(i + 1), sentence.getSentence(), sentence.getActualLanguage().toString(),
+            commandLineTable.addRow(String.valueOf(i + 1), sentence.getSentence(), sentence.getLanguage().toString(),
                     sentence.getUnigramDetectedLanguage().toString(), unigramResult,
                     sentence.getBigramDetectedLanguage().toString(), bigramResult);
 
             i++;
         }
 
+        // Print the table
         commandLineTable.print();
 
+        // Compute the accuracy
         float unigramAccuracy = (float)unigramCorrect/i * 100;
         float bigramAccuracy = (float)bigramCorrect/i * 100;
         System.out.println("Unigram accuracy: " + unigramCorrect + "/" + i + " = " + unigramAccuracy + "%");

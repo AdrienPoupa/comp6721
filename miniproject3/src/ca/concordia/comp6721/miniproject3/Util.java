@@ -120,6 +120,7 @@ public class Util {
      * Credits: https://www.quora.com/How-can-I-write-a-Java-program-to-find-each-occurrence-of-a-character-in-a-string
      * -which-is-given-as-an-input-from-a-console-without-using-any-built-in-functions
      * @param text text in which to count
+     * @param map the hashmap to populate
      */
     public static void countAlphabet(String text, HashMap<Character, Integer> map) {
         for (char ch : text.toCharArray()) {

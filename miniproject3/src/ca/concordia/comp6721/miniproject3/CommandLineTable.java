@@ -17,27 +17,49 @@ public class CommandLineTable {
     private List<String[]> rows = new ArrayList<>();
     private boolean rightAlign;
 
+    /**
+     * Constructor
+     */
     public CommandLineTable() {
         setShowVerticalLines(false);
     }
 
+    /**
+     * Set right align
+     * @param rightAlign boolean
+     */
     public void setRightAlign(boolean rightAlign) {
         this.rightAlign = rightAlign;
     }
 
+    /**
+     * Show vertical lines
+     * @param showVerticalLines boolean
+     */
     public void setShowVerticalLines(boolean showVerticalLines) {
         verticalSep = showVerticalLines ? "|" : "";
         joinSep = showVerticalLines ? "+" : " ";
     }
 
+    /**
+     * Set headers
+     * @param headers string headers
+     */
     public void setHeaders(String... headers) {
         this.headers = headers;
     }
 
+    /**
+     * Add a row
+     * @param cells string cells
+     */
     public void addRow(String... cells) {
         rows.add(cells);
     }
 
+    /**
+     * Print the table
+     */
     public void print() {
         int[] maxWidths = headers != null ?
                 Arrays.stream(headers).mapToInt(String::length).toArray() : null;
@@ -67,6 +89,10 @@ public class CommandLineTable {
         }
     }
 
+    /**
+     * Print a line
+     * @param columnWidths int column width
+     */
     private void printLine(int[] columnWidths) {
         for (int i = 0; i < columnWidths.length; i++) {
             String line = String.join("", Collections.nCopies(columnWidths[i] +
@@ -76,6 +102,11 @@ public class CommandLineTable {
         System.out.println();
     }
 
+    /**
+     * Print a row
+     * @param cells cells to print
+     * @param maxWidths int max width
+     */
     private void printRow(String[] cells, int[] maxWidths) {
         for (int i = 0; i < cells.length; i++) {
             String s = cells[i];

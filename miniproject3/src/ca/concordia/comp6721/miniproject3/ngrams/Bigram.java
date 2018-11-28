@@ -184,7 +184,7 @@ public class Bigram extends AbstractNgram {
 
     /**
      * Predict the language for the given sentences
-     * @param sentences
+     * @param sentences list of sentences for the command line output
      */
     @Override
     public void predict(List<Sentence> sentences) {
@@ -225,17 +225,30 @@ public class Bigram extends AbstractNgram {
                     String currentChar  = bigram.substring(1, 2); // h
                     finalOut.append("\n").append("BIGRAM: ").append(previousChar).append(currentChar).append("\n");
                     trainingFiles.forEach(((language, filename) -> {
+
                         HashMap<String, HashMap<String, Float>> probabilitySubMap = probabilityMap.get(language);
+
+                        // Get the probability for the current bigram
+                        // We init the probability at the minimum value, because if a bigram is not in the map,
+                        // there is a high probability that it is not in the current language
+                        // Thus, setting a low probability value for this bigram will decrease the final score
                         float probability = Float.MIN_VALUE;
+                        // The current char ("h" in bigram "wh") is in the map
                         if (probabilitySubMap.containsKey(currentChar)) {
                             HashMap<String, Float> probabilitySubSubMap = probabilitySubMap.get(currentChar);
+                            // The previous char ("w" in bigram "wh") is in the submap
                             if (probabilitySubSubMap.containsKey(previousChar)) {
+                                // Get the probability that we computed before
                                 probability = probabilitySubSubMap.get(previousChar);
                             }
                         }
+
+                        // Add the probability to the current score
+                        // We use log10 to avoid underflow
                         double score =+ finalScoreMap2.get(language) + Math.log10(probability);
                         finalScoreMap2.put(language, score);
 
+                        // Add to the output file
                         try {
                             finalOut.append(language.newInstance().toString().toUpperCase())
                                     .append(": P(").append(currentChar).append("|").append(previousChar).append(") = ").append(probability)
@@ -247,6 +260,7 @@ public class Bigram extends AbstractNgram {
                 });
                 output.append("\n");
 
+                // Write the output file
                 Class<? extends Language> mostProbableLanguage = Collections.max(scoreMap.entrySet(), Comparator.comparingDouble(Map.Entry::getValue)).getKey();
                 Language languageInstance = mostProbableLanguage.newInstance();
                 output.append("According to the bigram model, the sentence is in ").append(languageInstance.toString());

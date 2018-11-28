@@ -13,23 +13,40 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
+/**
+ * Unigram prediction
+ */
 public class Unigram extends AbstractNgram {
 
+    // HashMap associating language => char => probability
     private HashMap<Class<? extends Language>, HashMap<Character, Float>> probabilityMap;
+
+    // Number of characters for a language
     private Map<Class<? extends Language>, Long> numberOfChar;
 
+    /**
+     * Unigram constructor
+     */
     public Unigram() {
+
+        // Call to parent (abstract) constructor
         super();
+
+        // Setup the maps
         probabilityMap = new HashMap<>();
+        numberOfChar = new HashMap<>();
+
         trainingFiles.forEach(((language, filename) -> {
             probabilityMap.put(language, new HashMap<>());
         }));
     }
 
+    /**
+     * Train the unigram model
+     */
     @Override
     public void train() {
-        numberOfChar = new HashMap<>();
-
+        // For all languages
         trainingFiles.forEach(((language, filename) -> {
             try {
                 String text = Util.cleanString(
@@ -43,23 +60,32 @@ public class Unigram extends AbstractNgram {
             }
         }));
 
+        // Compute the probabilities for each character of each language
         langMap.forEach((language, alphabetMap) -> {
             long totalChar = numberOfChar.get(language);
             alphabetMap.forEach((character, numberOfOccurences) -> {
                 // Probability of the character
-                // 0.5-smoothing: +0.5 on the numerator, +26 (number of different output) * 0.5 on the denominator
-                float probability = (float)(numberOfOccurences + DELTA_SMOOTHING) / (float)(totalChar + 26 * DELTA_SMOOTHING);
+                // delta-smoothing: +delta on the numerator, +numberOfLetters
+                // (number of different outputs, hence 26 for English or French, 25 for Spanish) * delta on the denominator
+                int numberOfLetters = alphabetMap.size();
+                float probability = (float)(numberOfOccurences + DELTA_SMOOTHING) /
+                        (float)(totalChar + numberOfLetters * DELTA_SMOOTHING);
+
                 HashMap<Character, Float> alphabetMap2 = probabilityMap.get(language);
                 alphabetMap2.put(character, probability);
             });
         });
     }
 
+    /**
+     * Output the probabilities for the bigrams
+     */
     @Override
     public void output() {
         probabilityMap.forEach((language, alphabetMap) -> {
             StringBuilder stringBuilder = new StringBuilder();
 
+            // Use the scientific notation
             NumberFormat scientificNotation = new DecimalFormat("0.####E0");
 
             alphabetMap.forEach((character, probability) -> stringBuilder.append("(")
@@ -78,6 +104,10 @@ public class Unigram extends AbstractNgram {
         });
     }
 
+    /**
+     * Predict the language for the given sentences
+     * @param sentences list of sentences for the command line output
+     */
     @Override
     public void predict(List<Sentence> sentences) {
         try {
@@ -111,13 +141,25 @@ public class Unigram extends AbstractNgram {
                     HashMap<Class<? extends Language>, Double> finalScoreMap2 = scoreMap;
                     probabilityMap.forEach((language, alphabetMap) -> {
                         try {
+                            // Get the probability for the current unigram (character)
+                            // We init the probability at the minimum value, because if a character is not in the map,
+                            // there is a high probability that it is not in the current language
+                            // Thus, setting a low probability value for this character will decrease the final score
                             float probability = Float.MIN_VALUE;
+
+                            // If the current character exists in the probability map
                             if (probabilityMap.get(language).containsKey(character)) {
+                                // Get the proability
                                 probability = probabilityMap.get(language).get(character);
                             }
+
+                            // Add the probability to the current score
+                            // We use log10 to avoid underflow
                             double score =+ finalScoreMap2.get(language) + Math.log10(probability);
+
                             finalScoreMap2.put(language, score);
 
+                            // Add to the output file
                             finalOut.append(language.newInstance().toString().toUpperCase())
                                     .append(": P(").append(character).append(") = ").append(probability)
                                     .append(" ==> log prob of sentence so far: ").append(score).append("\n");
@@ -129,6 +171,7 @@ public class Unigram extends AbstractNgram {
 
                 output.append("\n");
 
+                // Write the output file
                 Class<? extends Language> mostProbableLanguage = Collections.max(scoreMap.entrySet(), Comparator.comparingDouble(Map.Entry::getValue)).getKey();
                 Language languageInstance = mostProbableLanguage.newInstance();
                 output.append("According to the unigram model, the sentence is in ").append(languageInstance.toString());
@@ -141,7 +184,7 @@ public class Unigram extends AbstractNgram {
                 String expectedLanguage = Files.readAllLines(Paths.get("input/sentencesLanguages.txt")).get(i - 1);
                 // Convert it to the class and add it
                 Class<?> classType = Class.forName("ca.concordia.comp6721.miniproject3.languages."+expectedLanguage);
-                sentence.setActualLanguage((Language) classType.newInstance());
+                sentence.setLanguage((Language) classType.newInstance());
 
                 // Add the unigram result to the sentence array list
                 sentence.setUnigramDetectedLanguage(languageInstance);
