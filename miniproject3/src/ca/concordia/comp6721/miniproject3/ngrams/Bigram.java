@@ -11,51 +11,86 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
+/**
+ * Bigram prediction
+ */
 public class Bigram extends AbstractNgram {
     // Language, P(currentChar|previousChar) => HashMap<currentChar, HashMap<previousChar, frequence>>>
+    
+    // HashMap associating language => bigrams
     private HashMap<Class<? extends Language>, List<String>> bigramsMap;
+    
+    // HashMap associating language => currentChar => previousChar => probability
     private HashMap<Class<? extends Language>, HashMap<String, HashMap<String, Float>>> probabilityMap;
-    private HashMap<Class<? extends Language>, HashMap<String, HashMap<String, Integer>>> bigramOccurencesMap;
 
+    // HashMap associating language => currentChar => previousChar => number of occurrences
+    private HashMap<Class<? extends Language>, HashMap<String, HashMap<String, Integer>>> bigramOccurrencesMap;
+
+    /**
+     * Bigram constructor
+     */
     public Bigram() {
+        // Call to parent (abstract) constructor
         super();
+        
+        // Setup the maps
         bigramsMap = new HashMap<>();
-        bigramOccurencesMap = new HashMap<>();
+        
+        bigramOccurrencesMap = new HashMap<>();
+        
         probabilityMap = new HashMap<>();
+        
         trainingFiles.forEach(((language, filename) -> {
-            bigramOccurencesMap.put(language, new HashMap<>(new HashMap<>()));
+            bigramOccurrencesMap.put(language, new HashMap<>(new HashMap<>()));
             probabilityMap.put(language, new HashMap<>(new HashMap<>()));
         }));
     }
 
+    /**
+     * Train the bigram model
+     */
     @Override
     public void train() {
+        // For each language that is supported
         trainingFiles.forEach(((language, filename) -> {
             try {
+                // Clean the string
                 String text = Util.cleanString(
                         Util.readFile(new File("input/" + filename).getPath(), Charset.defaultCharset()));
 
+                // Get the bigrams present in the training file, put them in the bigramsMap
                 List<String> bigrams = Util.explodeString(text);
                 bigramsMap.put(language, bigrams);
 
-                Util.countAlphabet(text, langMap.get(language));
+                // Get the submap of bigramOccurrencesMap
+                // It will be used to add the number of occurrences for each bigram
+                HashMap<String, HashMap<String, Integer>> bigramMap = bigramOccurrencesMap.get(language);
 
-                HashMap<String, HashMap<String, Integer>> bigramMap = bigramOccurencesMap.get(language);
-
+                // For each bigram present in the training file
                 bigrams.forEach(bigram -> {
-                    // Compute P(currentChar|previousChar)
-                    // eg: for bigram "wh", P(h|w)
+                    // Given a bigram, compute the number of its occurrences
+                    // eg: for bigram "wh"
                     String previousChar = bigram.substring(0, 1); // w
                     String currentChar  = bigram.substring(1, 2); // h
+
+                    // The bigramMap already has occurrences of "h"
                     if (bigramMap.containsKey(currentChar)) {
+                        // Get the "h" submap
                         HashMap<String, Integer> previousCharMap = bigramMap.get(currentChar);
+
+                        // The h submap already has occurrences of "w"
                         if (previousCharMap.containsKey(previousChar)) {
+                            // Increment the number of existing occurrences of bigram "wh"
                             int val = previousCharMap.get(previousChar);
                             previousCharMap.put(previousChar, val + 1);
                         } else {
+                            // Create the entry "w" so we create the "wh" bigram
                             previousCharMap.put(previousChar, 1);
                         }
                     } else {
+                        // This is the first time we see a "h" in second position (eg "Xh" where "X" is any letter)
+                        // We create a new submap for "h" and another one for "w", start the counter at 1
+                        // It can be increased later when the bigram is encountered again
                         HashMap<String, Integer> previousCharMap = new HashMap<>();
                         previousCharMap.put(previousChar, 1);
                         bigramMap.put(currentChar, previousCharMap);
@@ -66,30 +101,39 @@ public class Bigram extends AbstractNgram {
             }
         }));
 
-        // Calculate the probabilities
+        // Setup the Bigram set
+        // Here we use a set because we want to have all the UNIQUE bigrams
+        // So we convert our bigram map into a set that will contain all the bigrams of the language only once
         HashMap<Class<? extends Language>, Set<String>> bigramsSet = new HashMap<>();
-        trainingFiles.forEach(((language, filename) -> {
-            bigramsSet.put(language, new HashSet<>(bigramsMap.get(language)));
-        }));
-        bigramOccurencesMap.forEach((language, bigramMap) ->
+        trainingFiles.forEach(((language, filename) -> bigramsSet.put(language, new HashSet<>(bigramsMap.get(language)))));
+
+        // Calculate the probabilities
+        // Compute P(currentChar|previousChar)
+        // eg: for bigram "wh", P(h|w)
+        bigramOccurrencesMap.forEach((language, bigramMap) ->
                 bigramMap.forEach((currentChar, previousChars) ->
                         previousChars.forEach((previousChar, numberOfOccurrences) -> {
 
                             // Compute P(currentChar|previousChar)
-                            if (bigramOccurencesMap.get(language).containsKey(currentChar)
-                                && bigramOccurencesMap.get(language).get(currentChar).containsKey(previousChar)) {
+                            if (bigramOccurrencesMap.get(language).containsKey(currentChar)
+                                && bigramOccurrencesMap.get(language).get(currentChar).containsKey(previousChar)) {
 
-                                int previousCharCurrentChar = bigramOccurencesMap.get(language)
+                                // Get the number of occurences of the bigram "wh"
+                                int previousCharCurrentChar = bigramOccurrencesMap.get(language)
                                                                                  .get(currentChar)
                                                                                  .get(previousChar);
 
+                                // Get the total number of bigrams for the language
                                 int totalNumberOfBigrams = bigramsMap.get(language).size();
 
+                                // Get the number of different bigrams for the language
                                 int numberOfDifferentBigrams = bigramsSet.get(language).size();
 
+                                // Actually calculate the probability
                                 float probability = (float)(previousCharCurrentChar + DELTA_SMOOTHING) /
                                                     (float)(totalNumberOfBigrams + DELTA_SMOOTHING * numberOfDifferentBigrams);
 
+                                // Update the probability map with the probability
                                 if (probabilityMap.get(language).containsKey(currentChar)) {
                                     probabilityMap.get(language).get(currentChar).put(previousChar, probability);
                                 } else {
@@ -102,12 +146,19 @@ public class Bigram extends AbstractNgram {
                         })));
     }
 
+    /**
+     * Output the probabilities for the unigrams
+     */
     @Override
     public void output() {
+        // For each probability that we computed
         probabilityMap.forEach((language, bigramMap) -> {
             StringBuilder stringBuilder = new StringBuilder();
+
+            // We want the scientific notation
             NumberFormat scientificNotation = new DecimalFormat("0.####E0");
 
+            // Create a new line like (a|a) = 1.2786E-4
             bigramMap.forEach((currentChar, previousChars) ->
                     previousChars.forEach((previousChar, probability) -> {
                         stringBuilder.append("(")
@@ -118,7 +169,10 @@ public class Bigram extends AbstractNgram {
                                 .append(scientificNotation.format(probability))
                                 .append("\n");
                             }));
+
             String output = stringBuilder.toString();
+
+            // Write the probability to the file
             try {
                 Language languageInstance = language.newInstance();
                 Util.writeInFile("bigram" + languageInstance.getCode() + ".txt", output);
@@ -128,6 +182,10 @@ public class Bigram extends AbstractNgram {
         });
     }
 
+    /**
+     * Predict the language for the given sentences
+     * @param sentences
+     */
     @Override
     public void predict(List<Sentence> sentences) {
         try {
@@ -135,6 +193,7 @@ public class Bigram extends AbstractNgram {
 
             HashMap<Class<? extends Language>, Double> scoreMap;
 
+            // For each sentence
             int i = 1;
             StringBuilder output;
             for(String line: lines) {
@@ -152,6 +211,7 @@ public class Bigram extends AbstractNgram {
                 // Get the sentence from the ArrayList
                 Sentence sentence = sentences.get(i - 1);
 
+                // Get the bigrams that are in the sentence
                 List<String> bigrams = Util.explodeString(cleanLine);
 
                 output.append("BIGRAM MODEL:").append("\n");
