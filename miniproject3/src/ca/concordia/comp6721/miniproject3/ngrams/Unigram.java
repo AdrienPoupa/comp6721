@@ -143,11 +143,16 @@ public class Unigram extends AbstractNgram {
                     HashMap<Class<? extends Language>, Double> finalScoreMap2 = scoreMap;
                     probabilityMap.forEach((language, alphabetMap) -> {
                         try {
+                            // Get the total number of characters for the training file of the language
+                            long totalChar = numberOfChar.get(language);
+
+                            // Get the number of letters of the alphabet
+                            int numberOfLetters = alphabetMap.size();
+
                             // Get the probability for the current unigram (character)
-                            // We init the probability at the minimum value, because if a character is not in the map,
-                            // there is a high probability that it is not in the current language
-                            // Thus, setting a low probability value for this character will decrease the final score
-                            float probability = Float.MIN_VALUE;
+                            // We init the probability at the minimum value by setting numberOfOccurences to 0
+                            float probability = (float)(DELTA_SMOOTHING) /
+                                    (float)(totalChar + numberOfLetters * DELTA_SMOOTHING);
 
                             // If the current character exists in the probability map
                             if (probabilityMap.get(language).containsKey(character)) {

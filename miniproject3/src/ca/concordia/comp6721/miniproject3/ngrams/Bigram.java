@@ -26,6 +26,9 @@ public class Bigram extends AbstractNgram {
     // HashMap associating language => currentChar => previousChar => number of occurrences
     private HashMap<Class<? extends Language>, HashMap<String, HashMap<String, Integer>>> bigramOccurrencesMap;
 
+    // HashSet to store the bigrams uniquely
+    private HashMap<Class<? extends Language>, Set<String>> bigramsSet;
+
     /**
      * Bigram constructor
      */
@@ -104,7 +107,7 @@ public class Bigram extends AbstractNgram {
         // Setup the Bigram set
         // Here we use a set because we want to have all the UNIQUE bigrams
         // So we convert our bigram map into a set that will contain all the bigrams of the language only once
-        HashMap<Class<? extends Language>, Set<String>> bigramsSet = new HashMap<>();
+        bigramsSet = new HashMap<>();
         trainingFiles.forEach(((language, filename) -> bigramsSet.put(language, new HashSet<>(bigramsMap.get(language)))));
 
         // Calculate the probabilities
@@ -228,11 +231,17 @@ public class Bigram extends AbstractNgram {
 
                         HashMap<String, HashMap<String, Float>> probabilitySubMap = probabilityMap.get(language);
 
+                        // Get the total number of bigrams for the language
+                        int totalNumberOfBigrams = bigramsMap.get(language).size();
+
+                        // Get the number of different bigrams for the language
+                        int numberOfDifferentBigrams = bigramsSet.get(language).size();
+
                         // Get the probability for the current bigram
-                        // We init the probability at the minimum value, because if a bigram is not in the map,
-                        // there is a high probability that it is not in the current language
-                        // Thus, setting a low probability value for this bigram will decrease the final score
-                        float probability = Float.MIN_VALUE;
+                        // We init the probability at the minimum value, that is, by setting previousCharCurrentChar to 0
+                        float probability = (float)(DELTA_SMOOTHING) /
+                                (float)(totalNumberOfBigrams + DELTA_SMOOTHING * numberOfDifferentBigrams);
+
                         // The current char ("h" in bigram "wh") is in the map
                         if (probabilitySubMap.containsKey(currentChar)) {
                             HashMap<String, Float> probabilitySubSubMap = probabilitySubMap.get(currentChar);
