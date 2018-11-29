@@ -99,7 +99,7 @@ public class Util {
     }
 
     /**
-     * Split a string every n character
+     * Split a string every 2 characters to get all the Bigrams of a string
      * @param text string to split
      * @return list of strings
      */
@@ -109,7 +109,7 @@ public class Util {
         char previousCharacter = charTable[0];
         char [] subChar = Arrays.copyOfRange(charTable, 1, charTable.length);
         for (char character : subChar) {
-            parts.add(previousCharacter+String.valueOf(character));
+            parts.add(previousCharacter + String.valueOf(character));
             previousCharacter = character;
         }
         return parts;

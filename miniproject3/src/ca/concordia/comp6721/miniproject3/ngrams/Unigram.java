@@ -52,8 +52,10 @@ public class Unigram extends AbstractNgram {
                 String text = Util.cleanString(
                         Util.readFile(new File("input/" + filename).getPath(), Charset.defaultCharset()));
 
+                // Count the total number of characters
                 numberOfChar.put(language, text.chars().count());
 
+                // Count the number of each character
                 Util.countAlphabet(text, langMap.get(language));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -149,7 +151,7 @@ public class Unigram extends AbstractNgram {
 
                             // If the current character exists in the probability map
                             if (probabilityMap.get(language).containsKey(character)) {
-                                // Get the proability
+                                // Get the probability
                                 probability = probabilityMap.get(language).get(character);
                             }
 
